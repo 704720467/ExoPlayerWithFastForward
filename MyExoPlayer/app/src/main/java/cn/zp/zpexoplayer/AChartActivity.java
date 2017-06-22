@@ -31,18 +31,18 @@ public class AChartActivity extends AppCompatActivity {
         mLeftCurveLayout = (LinearLayout) findViewById(R.id.left_temperature_curve);
         mRightCurveLayout = (LinearLayout) findViewById(R.id.right_temperature_curve);
 
-        mService = new ChartService(this);
-        mService.setXYMultipleSeriesDataset("左温度曲线");
-        mService.setXYMultipleSeriesRenderer(100, 100, "左温度曲线", "时间", "温度", Color.RED, Color.RED, Color.RED, Color.BLACK);
-        mView = mService.getGraphicalView();
+        //        mService = new ChartService(this);
+        //        mService.setXYMultipleSeriesDataset("左温度曲线");
+        //        mService.setXYMultipleSeriesRenderer(100, 100, "左温度曲线", "时间", "温度", Color.RED, Color.RED, Color.RED, Color.BLACK);
+        //        mView = mService.getGraphicalView();
 
         mService2 = new ChartService(this);
-        mService2.setXYMultipleSeriesDataset("右温度曲线");
-        mService2.setXYMultipleSeriesRenderer(100, 100, "右温度曲线", "时间", "温度", Color.RED, Color.RED, Color.RED, Color.BLACK);
+        mService2.setXYMultipleSeriesDataset("右温度曲线-1");
+        mService2.setXYMultipleSeriesRenderer(100, 100, "右温度曲线-2", "时间", "温度", Color.RED, Color.RED, Color.RED, Color.BLACK);
         mView2 = mService2.getGraphicalView();
 
         //将左右图表添加到布局容器中
-        mLeftCurveLayout.addView(mView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        // mLeftCurveLayout.addView(mView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         mRightCurveLayout.addView(mView2, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 
         timer = new Timer();
@@ -60,7 +60,7 @@ public class AChartActivity extends AppCompatActivity {
         @Override
         //定时更新图表
         public void handleMessage(Message msg) {
-            mService.updateChart(t, Math.random() * 100);
+            //            mService.updateChart(t, Math.random() * 100);
             mService2.updateChart(t, Math.random() * 100);
             t += 5;
         }

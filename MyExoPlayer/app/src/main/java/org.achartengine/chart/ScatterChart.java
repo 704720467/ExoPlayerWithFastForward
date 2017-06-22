@@ -7,15 +7,15 @@ package org.achartengine.chart;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.RectF;
 import android.graphics.Paint.Style;
-import java.util.List;
-import org.achartengine.chart.ClickableArea;
-import org.achartengine.chart.XYChart;
+import android.graphics.RectF;
+
 import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.renderer.SimpleSeriesRenderer;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
+
+import java.util.List;
 
 public class ScatterChart extends XYChart {
     public static final String TYPE = "Scatter";
@@ -39,7 +39,7 @@ public class ScatterChart extends XYChart {
     public void drawSeries(Canvas canvas, Paint paint, List<Float> points, XYSeriesRenderer renderer, float yAxisValue, int seriesIndex, int startIndex) {
         paint.setColor(renderer.getColor());
         float stroke = paint.getStrokeWidth();
-        if(renderer.isFillPoints()) {
+        if (renderer.isFillPoints()) {
             paint.setStyle(Style.FILL);
         } else {
             paint.setStrokeWidth(renderer.getPointStrokeWidth());
@@ -51,69 +51,69 @@ public class ScatterChart extends XYChart {
         int i;
         int path1;
         label63:
-        switch(ScatterChart.SyntheticClass_1.$SwitchMap$org$achartengine$chart$PointStyle[renderer.getPointStyle().ordinal()]) {
-        case 1:
-            paint.setStrokeWidth(renderer.getPointStrokeWidth());
-            path1 = 0;
+        switch (renderer.getPointStyle().ordinal()) {
+            case 1:
+                paint.setStrokeWidth(renderer.getPointStrokeWidth());
+                path1 = 0;
 
-            while(true) {
-                if(path1 >= length) {
-                    break label63;
+                while (true) {
+                    if (path1 >= length) {
+                        break label63;
+                    }
+
+                    this.drawX(canvas, paint, ((Float) points.get(path1)).floatValue(), ((Float) points.get(path1 + 1)).floatValue());
+                    path1 += 2;
                 }
+            case 2:
+                path1 = 0;
 
-                this.drawX(canvas, paint, ((Float)points.get(path1)).floatValue(), ((Float)points.get(path1 + 1)).floatValue());
-                path1 += 2;
-            }
-        case 2:
-            path1 = 0;
+                while (true) {
+                    if (path1 >= length) {
+                        break label63;
+                    }
 
-            while(true) {
-                if(path1 >= length) {
-                    break label63;
+                    this.drawCircle(canvas, paint, ((Float) points.get(path1)).floatValue(), ((Float) points.get(path1 + 1)).floatValue());
+                    path1 += 2;
                 }
+            case 3:
+                path = new float[6];
+                i = 0;
 
-                this.drawCircle(canvas, paint, ((Float)points.get(path1)).floatValue(), ((Float)points.get(path1 + 1)).floatValue());
-                path1 += 2;
-            }
-        case 3:
-            path = new float[6];
-            i = 0;
+                while (true) {
+                    if (i >= length) {
+                        break label63;
+                    }
 
-            while(true) {
-                if(i >= length) {
-                    break label63;
+                    this.drawTriangle(canvas, paint, path, ((Float) points.get(i)).floatValue(), ((Float) points.get(i + 1)).floatValue());
+                    i += 2;
                 }
+            case 4:
+                i = 0;
 
-                this.drawTriangle(canvas, paint, path, ((Float)points.get(i)).floatValue(), ((Float)points.get(i + 1)).floatValue());
-                i += 2;
-            }
-        case 4:
-            i = 0;
+                while (true) {
+                    if (i >= length) {
+                        break label63;
+                    }
 
-            while(true) {
-                if(i >= length) {
-                    break label63;
+                    this.drawSquare(canvas, paint, ((Float) points.get(i)).floatValue(), ((Float) points.get(i + 1)).floatValue());
+                    i += 2;
                 }
+            case 5:
+                path = new float[8];
+                i = 0;
 
-                this.drawSquare(canvas, paint, ((Float)points.get(i)).floatValue(), ((Float)points.get(i + 1)).floatValue());
-                i += 2;
-            }
-        case 5:
-            path = new float[8];
-            i = 0;
+                while (true) {
+                    if (i >= length) {
+                        break label63;
+                    }
 
-            while(true) {
-                if(i >= length) {
-                    break label63;
+                    this.drawDiamond(canvas, paint, path, ((Float) points.get(i)).floatValue(), ((Float) points.get(i + 1)).floatValue());
+                    i += 2;
                 }
-
-                this.drawDiamond(canvas, paint, path, ((Float)points.get(i)).floatValue(), ((Float)points.get(i + 1)).floatValue());
-                i += 2;
-            }
-        case 6:
-            for(i = 0; i < length; i += 2) {
-                canvas.drawPoint(((Float)points.get(i)).floatValue(), ((Float)points.get(i + 1)).floatValue(), paint);
-            }
+            case 6:
+                for (i = 0; i < length; i += 2) {
+                    canvas.drawPoint(((Float) points.get(i)).floatValue(), ((Float) points.get(i + 1)).floatValue(), paint);
+                }
         }
 
         paint.setStrokeWidth(stroke);
@@ -123,9 +123,9 @@ public class ScatterChart extends XYChart {
         int length = points.size();
         ClickableArea[] ret = new ClickableArea[length / 2];
 
-        for(int i = 0; i < length; i += 2) {
+        for (int i = 0; i < length; i += 2) {
             int selectableBuffer = this.mRenderer.getSelectableBuffer();
-            ret[i / 2] = new ClickableArea(new RectF(((Float)points.get(i)).floatValue() - (float)selectableBuffer, ((Float)points.get(i + 1)).floatValue() - (float)selectableBuffer, ((Float)points.get(i)).floatValue() + (float)selectableBuffer, ((Float)points.get(i + 1)).floatValue() + (float)selectableBuffer), ((Double)values.get(i)).doubleValue(), ((Double)values.get(i + 1)).doubleValue());
+            ret[i / 2] = new ClickableArea(new RectF(((Float) points.get(i)).floatValue() - (float) selectableBuffer, ((Float) points.get(i + 1)).floatValue() - (float) selectableBuffer, ((Float) points.get(i)).floatValue() + (float) selectableBuffer, ((Float) points.get(i + 1)).floatValue() + (float) selectableBuffer), ((Double) values.get(i)).doubleValue(), ((Double) values.get(i + 1)).doubleValue());
         }
 
         return ret;
@@ -136,30 +136,30 @@ public class ScatterChart extends XYChart {
     }
 
     public void drawLegendShape(Canvas canvas, SimpleSeriesRenderer renderer, float x, float y, int seriesIndex, Paint paint) {
-        if(((XYSeriesRenderer)renderer).isFillPoints()) {
+        if (((XYSeriesRenderer) renderer).isFillPoints()) {
             paint.setStyle(Style.FILL);
         } else {
             paint.setStyle(Style.STROKE);
         }
 
-        switch(ScatterChart.SyntheticClass_1.$SwitchMap$org$achartengine$chart$PointStyle[((XYSeriesRenderer)renderer).getPointStyle().ordinal()]) {
-        case 1:
-            this.drawX(canvas, paint, x + 10.0F, y);
-            break;
-        case 2:
-            this.drawCircle(canvas, paint, x + 10.0F, y);
-            break;
-        case 3:
-            this.drawTriangle(canvas, paint, new float[6], x + 10.0F, y);
-            break;
-        case 4:
-            this.drawSquare(canvas, paint, x + 10.0F, y);
-            break;
-        case 5:
-            this.drawDiamond(canvas, paint, new float[8], x + 10.0F, y);
-            break;
-        case 6:
-            canvas.drawPoint(x + 10.0F, y, paint);
+        switch (((XYSeriesRenderer) renderer).getPointStyle().ordinal()) {
+            case 1:
+                this.drawX(canvas, paint, x + 10.0F, y);
+                break;
+            case 2:
+                this.drawCircle(canvas, paint, x + 10.0F, y);
+                break;
+            case 3:
+                this.drawTriangle(canvas, paint, new float[6], x + 10.0F, y);
+                break;
+            case 4:
+                this.drawSquare(canvas, paint, x + 10.0F, y);
+                break;
+            case 5:
+                this.drawDiamond(canvas, paint, new float[8], x + 10.0F, y);
+                break;
+            case 6:
+                canvas.drawPoint(x + 10.0F, y, paint);
         }
 
     }

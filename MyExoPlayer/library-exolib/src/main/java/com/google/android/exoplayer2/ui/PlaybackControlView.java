@@ -191,6 +191,13 @@ public class PlaybackControlView extends FrameLayout {
 
         void fullScreen();
 
+        /**
+         * 播放进度变化回调
+         *
+         * @param currtentProgress 当前的进度
+         */
+        void onProgressChanged(long currtentProgress);
+
     }
 
     /**
@@ -566,12 +573,12 @@ public class PlaybackControlView extends FrameLayout {
             } else {
                 delayMs = 200;
             }
-            postDelayed(updateProgressAction, 50);
+            postDelayed(updateProgressAction, 16);
         }
 
         // 更新外面控制栏的进度
         if (mVideoControlLinstion != null)
-            mVideoControlLinstion.updateProgressBack(durationUs, positionUs);
+            mVideoControlLinstion.updateProgressBack(duration, position);
     }
 
     private void requestPlayPauseFocus() {
@@ -610,7 +617,8 @@ public class PlaybackControlView extends FrameLayout {
         long minutes = (totalSeconds / 60) % 60;
         long hours = totalSeconds / 3600;
         formatBuilder.setLength(0);
-        return hours > 0 ? formatter.format("%d:%02d:%02d", hours, minutes, seconds).toString() : formatter.format("%02d:%02d", minutes, seconds).toString();
+        //        return hours > 0 ? formatter.format("%d:%02d:%02d", hours, minutes, seconds).toString() : formatter.format("%02d:%02d", minutes, seconds).toString();
+        return formatter.format("%02d:%02d:%02d", hours, minutes, seconds).toString();
     }
 
     public int progressBarValue(long position) {
@@ -784,6 +792,8 @@ public class PlaybackControlView extends FrameLayout {
                 if (positionView != null) {
                     positionView.setText(stringForTime(position));
                 }
+                if (mVideoControlLinstion != null)
+                    mVideoControlLinstion.onProgressChanged(position);
                 if (player != null && !dragging) {
                     seekTo(position);
                 }

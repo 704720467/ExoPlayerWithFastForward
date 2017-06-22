@@ -34,4 +34,27 @@ public class DeviceUtil {
         return Math.round((float) screenWidth / 16 * 9);
     }
 
+    /**
+     * dp转像素
+     *
+     * @param context
+     * @param dp
+     * @return
+     */
+    public static int dp2px(Context context, int dp) {
+        return (int) (dp * context.getResources().getDisplayMetrics().density + 0.5f);
+    }
+
+    /**
+     * 像素转dp
+     *
+     * @param context
+     * @param px
+     * @return
+     */
+    public static int px2dp(Context context, int px) {
+        return (int) (px / context.getResources().getDisplayMetrics().density + 0.5f);
+    }
+
+
 }

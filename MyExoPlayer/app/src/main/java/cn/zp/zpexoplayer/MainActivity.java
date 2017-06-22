@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -15,15 +16,20 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.SeekBar;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ui.PlaybackControlView;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 
 import java.util.ArrayList;
+import java.util.Formatter;
+import java.util.Locale;
 import java.util.Random;
 
 import cn.zp.zpexoplayer.exoplayer.IMediaPlayer;
 import cn.zp.zpexoplayer.exoplayer.KExoMediaPlayer;
+import cn.zp.zpexoplayer.model.MyTime;
 import cn.zp.zpexoplayer.util.DeviceUtil;
+import cn.zp.zpexoplayer.view.DynamicLine;
 import cn.zp.zpexoplayer.view.MyCircleLinearLayout;
 
 public class MainActivity extends AppCompatActivity implements PlaybackControlView.VideoControlLinstion, IMediaPlayer.OnPreparedListener, MyCircleLinearLayout.MyCircleLinearLayListener, View.OnClickListener, IMediaPlayer.OnErrorListener, IMediaPlayer.OnCompletionListener {
@@ -37,7 +43,6 @@ public class MainActivity extends AppCompatActivity implements PlaybackControlVi
     MyCircleLinearLayout myCircleLinearLayout;
     //    private SeekBar mSeekbar;
     private ArrayList<Integer> myRandom = new ArrayList<>();
-    private Handler mHandler = new Handler();
     private int seekPoint = 0;
     private final Runnable updateProgressAction = new Runnable() {
         @Override
@@ -47,15 +52,30 @@ public class MainActivity extends AppCompatActivity implements PlaybackControlVi
     };
     PlaybackControlView controller;
     SeekBar seekBar;
+    //进度回调
 
-    private void seekVideo() {
-        if (mediaPlayer != null && seekPoint < myRandom.size()) {
-            Log.e("===================>", "seek到：seekPoint=" + seekPoint + "；；时间为" + controller.positionValue(myRandom.get(seekPoint)));
-            controller.seekTo(controller.positionValue(myRandom.get(seekPoint)));
-            seekPoint++;
-            mHandler.postDelayed(updateProgressAction, 4000);
+    private static final int MSG_DATA_CHANGE = 0x11;
+    private DynamicLine dynamicLine;
+    private ArrayList<MyTime> myTimes;
+    StringBuilder formatBuilder;
+    private Formatter formatter;
+    private int timeWidth;
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MSG_DATA_CHANGE:
+                    dynamicLine.refreshView((Long) msg.obj);
+                    break;
+
+                default:
+                    break;
+            }
+            super.handleMessage(msg);
         }
-    }
+    };
+    private long oldProgress;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +99,11 @@ public class MainActivity extends AppCompatActivity implements PlaybackControlVi
         if (mSettings == null)
             mSettings = new Settings(this);
         speed = mSettings.getSonicSpeed();
+        timeWidth = 200;
+        formatBuilder = new StringBuilder();
+        formatter = new Formatter(formatBuilder, Locale.getDefault());
+        if (myTimes == null)
+            myTimes = new ArrayList<>();
 
     }
 
@@ -101,6 +126,8 @@ public class MainActivity extends AppCompatActivity implements PlaybackControlVi
         mSeek.setOnClickListener(this);
         controller = simpleExoPlayerView.getController();
         seekBar = controller.getProgressBar();
+        dynamicLine = (DynamicLine) this.findViewById(R.id.DynamicLine);
+        dynamicLine.setMyTimes(myTimes);
     }
 
     @Override
@@ -150,7 +177,18 @@ public class MainActivity extends AppCompatActivity implements PlaybackControlVi
         mp.start();
         updateFabStatePost(true);
         //        mSeekbar.setMax(Math.round(mediaPlayer.getDuration()));
-        //        mSeekbar.setProgress(Math.round(mediaPlayer.getCurrentPosition()));
+        //mSeekbar.setProgress(Math.round(mediaPlayer.getCurrentPosition()));
+        myTimes.clear();
+        for (int i = 0; i * 1000 <= Math.round(mediaPlayer.getDuration()); i++) {
+            MyTime m = new MyTime(null, i * 1000, stringForTime(i * 1000), timeWidth, i * timeWidth);
+            Log.e("添加tga", "i=" + i);
+            myTimes.add(m);
+        }
+
+        Message message = mHandler.obtainMessage(MSG_DATA_CHANGE);
+        message.obj = oldProgress;
+        mHandler.sendMessage(message);
+        oldProgress = 0;
     }
 
     @Override
@@ -277,17 +315,40 @@ public class MainActivity extends AppCompatActivity implements PlaybackControlVi
         }
     }
 
+    private long oldTime;
+
     @Override
     public boolean updateProgressBack(long duration, long currentPosition) {
-        Log.e("===============>", "更新进度回调duration=" + duration + ";currentPosition=" + currentPosition);
-        Log.e("===============>", "转换后Math.round(duration)=" + Math.round(duration) + ";Math.round(currentPosition)=" + Math.round(currentPosition));
+        long dou = currentPosition - oldProgress;
+        long nowTime = System.currentTimeMillis();
+        //        dou=20;
+        if (dou > 0) {
+            Log.e("===================>", "跳转到currtentProgress=" + currentPosition + "；oldProgress=" + oldProgress + ";dou=" + dou + ";time=" + (nowTime - oldTime));
+            oldTime = nowTime;
+            //            Message message = mHandler.obtainMessage(MSG_DATA_CHANGE);
+            //            message.obj = dou;
+            //            mHandler.sendMessage(message);
+            oldProgress = currentPosition;
+            dynamicLine.refreshView(dou);
+        }
         return false;
     }
 
     @Override
     public void fullScreen() {
-        setRequestedOrientation((getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) ? ActivityInfo.SCREEN_ORIENTATION_PORTRAIT : ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);//强制为横屏
-        //        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);       //强制为竖屏
+        setRequestedOrientation((getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) ? //
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT ://
+                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);//强制为横屏
+    }
+
+    @Override
+    public void onProgressChanged(long currtentProgress) {
+        long dou = currtentProgress - oldProgress;
+        Log.e("===================>", "拖动跳转到currtentProgress=" + currtentProgress + "；oldProgress=" + oldProgress + ";dou=" + dou);
+        Message message = mHandler.obtainMessage(MSG_DATA_CHANGE);
+        message.obj = dou;
+        mHandler.sendMessage(message);
+        oldProgress = currtentProgress;
     }
 
     private void createRandomNumber() {
@@ -298,5 +359,26 @@ public class MainActivity extends AppCompatActivity implements PlaybackControlVi
             Log.e("===================>", "添加seek到：i=" + i + "；；时间为=" + time + ";z最大时间=" + seekBar.getMax());
         }
         mHandler.postDelayed(updateProgressAction, 2000);
+    }
+
+
+    private void seekVideo() {
+        if (mediaPlayer != null && seekPoint < myRandom.size()) {
+            controller.seekTo(controller.positionValue(myRandom.get(seekPoint)));
+            seekPoint++;
+            mHandler.postDelayed(updateProgressAction, 4000);
+        }
+    }
+
+    private String stringForTime(long timeMs) {
+        if (timeMs == C.TIME_UNSET) {
+            timeMs = 0;
+        }
+        long totalSeconds = (timeMs + 500) / 1000;
+        long seconds = totalSeconds % 60;
+        long minutes = (totalSeconds / 60) % 60;
+        long hours = totalSeconds / 3600;
+        formatBuilder.setLength(0);
+        return formatter.format("%02d:%02d:%02d", hours, minutes, seconds).toString();
     }
 }

@@ -8,18 +8,18 @@ package org.achartengine.chart;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.RectF;
 import android.graphics.Paint.Style;
+import android.graphics.RectF;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.GradientDrawable.Orientation;
-import java.util.List;
-import org.achartengine.chart.ClickableArea;
-import org.achartengine.chart.XYChart;
+
 import org.achartengine.model.XYMultipleSeriesDataset;
 import org.achartengine.model.XYSeries;
 import org.achartengine.renderer.SimpleSeriesRenderer;
 import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
+
+import java.util.List;
 
 public class BarChart extends XYChart {
     public static final String TYPE = "Bar";
@@ -48,14 +48,14 @@ public class BarChart extends XYChart {
         ClickableArea[] ret = new ClickableArea[length / 2];
         float halfDiffX = this.getHalfDiffX(points, length, seriesNr);
 
-        for(int i = 0; i < length; i += 2) {
-            float x = ((Float)points.get(i)).floatValue();
-            float y = ((Float)points.get(i + 1)).floatValue();
-            if(this.mType != Type.STACKED && this.mType != Type.HEAPED) {
-                float startX = x - (float)seriesNr * halfDiffX + (float)(seriesIndex * 2) * halfDiffX;
-                ret[i / 2] = new ClickableArea(new RectF(startX, Math.min(y, yAxisValue), startX + 2.0F * halfDiffX, Math.max(y, yAxisValue)), ((Double)values.get(i)).doubleValue(), ((Double)values.get(i + 1)).doubleValue());
+        for (int i = 0; i < length; i += 2) {
+            float x = ((Float) points.get(i)).floatValue();
+            float y = ((Float) points.get(i + 1)).floatValue();
+            if (this.mType != Type.STACKED && this.mType != Type.HEAPED) {
+                float startX = x - (float) seriesNr * halfDiffX + (float) (seriesIndex * 2) * halfDiffX;
+                ret[i / 2] = new ClickableArea(new RectF(startX, Math.min(y, yAxisValue), startX + 2.0F * halfDiffX, Math.max(y, yAxisValue)), ((Double) values.get(i)).doubleValue(), ((Double) values.get(i + 1)).doubleValue());
             } else {
-                ret[i / 2] = new ClickableArea(new RectF(x - halfDiffX, Math.min(y, yAxisValue), x + halfDiffX, Math.max(y, yAxisValue)), ((Double)values.get(i)).doubleValue(), ((Double)values.get(i + 1)).doubleValue());
+                ret[i / 2] = new ClickableArea(new RectF(x - halfDiffX, Math.min(y, yAxisValue), x + halfDiffX, Math.max(y, yAxisValue)), ((Double) values.get(i)).doubleValue(), ((Double) values.get(i + 1)).doubleValue());
             }
         }
 
@@ -69,11 +69,11 @@ public class BarChart extends XYChart {
         paint.setStyle(Style.FILL);
         float halfDiffX = this.getHalfDiffX(points, length, seriesNr);
 
-        for(int i = 0; i < length; i += 2) {
-            float x = ((Float)points.get(i)).floatValue();
-            float y = ((Float)points.get(i + 1)).floatValue();
-            if(this.mType == Type.HEAPED && seriesIndex > 0) {
-                float lastY = ((Float)this.mPreviousSeriesPoints.get(i + 1)).floatValue();
+        for (int i = 0; i < length; i += 2) {
+            float x = ((Float) points.get(i)).floatValue();
+            float y = ((Float) points.get(i + 1)).floatValue();
+            if (this.mType == Type.HEAPED && seriesIndex > 0) {
+                float lastY = ((Float) this.mPreviousSeriesPoints.get(i + 1)).floatValue();
                 y += lastY - yAxisValue;
                 points.set(i + 1, Float.valueOf(y));
                 this.drawBar(canvas, x, lastY, x, y, halfDiffX, seriesNr, seriesIndex, paint);
@@ -88,8 +88,8 @@ public class BarChart extends XYChart {
 
     protected void drawBar(Canvas canvas, float xMin, float yMin, float xMax, float yMax, float halfDiffX, int seriesNr, int seriesIndex, Paint paint) {
         int scale = this.mDataset.getSeriesAt(seriesIndex).getScaleNumber();
-        if(this.mType != Type.STACKED && this.mType != Type.HEAPED) {
-            float startX = xMin - (float)seriesNr * halfDiffX + (float)(seriesIndex * 2) * halfDiffX;
+        if (this.mType != Type.STACKED && this.mType != Type.HEAPED) {
+            float startX = xMin - (float) seriesNr * halfDiffX + (float) (seriesIndex * 2) * halfDiffX;
             this.drawBar(canvas, startX, yMax, startX + 2.0F * halfDiffX, yMin, scale, seriesIndex, paint);
         } else {
             this.drawBar(canvas, xMin - halfDiffX, yMax, xMax + halfDiffX, yMin, scale, seriesIndex, paint);
@@ -99,38 +99,38 @@ public class BarChart extends XYChart {
 
     protected void drawBar(Canvas canvas, float xMin, float yMin, float xMax, float yMax, int scale, int seriesIndex, Paint paint) {
         float temp;
-        if(xMin > xMax) {
+        if (xMin > xMax) {
             temp = xMin;
             xMin = xMax;
             xMax = temp;
         }
 
-        if(yMin > yMax) {
+        if (yMin > yMax) {
             temp = yMin;
             yMin = yMax;
             yMax = temp;
         }
 
         SimpleSeriesRenderer renderer = this.mRenderer.getSeriesRendererAt(seriesIndex);
-        if(renderer.isGradientEnabled()) {
-            float minY = (float)this.toScreenPoint(new double[]{0.0D, renderer.getGradientStopValue()}, scale)[1];
-            float maxY = (float)this.toScreenPoint(new double[]{0.0D, renderer.getGradientStartValue()}, scale)[1];
+        if (renderer.isGradientEnabled()) {
+            float minY = (float) this.toScreenPoint(new double[]{0.0D, renderer.getGradientStopValue()}, scale)[1];
+            float maxY = (float) this.toScreenPoint(new double[]{0.0D, renderer.getGradientStartValue()}, scale)[1];
             float gradientMinY = Math.max(minY, Math.min(yMin, yMax));
             float gradientMaxY = Math.min(maxY, Math.max(yMin, yMax));
             int gradientMinColor = renderer.getGradientStopColor();
             int gradientMaxColor = renderer.getGradientStartColor();
             int gradientStartColor = gradientMaxColor;
             int gradientStopColor = gradientMinColor;
-            if(yMin < minY) {
+            if (yMin < minY) {
                 paint.setColor(gradientMinColor);
-                canvas.drawRect((float)Math.round(xMin), (float)Math.round(yMin), (float)Math.round(xMax), (float)Math.round(gradientMinY), paint);
+                canvas.drawRect((float) Math.round(xMin), (float) Math.round(yMin), (float) Math.round(xMax), (float) Math.round(gradientMinY), paint);
             } else {
                 gradientStopColor = this.getGradientPartialColor(gradientMinColor, gradientMaxColor, (maxY - gradientMinY) / (maxY - minY));
             }
 
-            if(yMax > maxY) {
+            if (yMax > maxY) {
                 paint.setColor(gradientMaxColor);
-                canvas.drawRect((float)Math.round(xMin), (float)Math.round(gradientMaxY), (float)Math.round(xMax), (float)Math.round(yMax), paint);
+                canvas.drawRect((float) Math.round(xMin), (float) Math.round(gradientMaxY), (float) Math.round(xMax), (float) Math.round(yMax), paint);
             } else {
                 gradientStartColor = this.getGradientPartialColor(gradientMaxColor, gradientMinColor, (gradientMaxY - minY) / (maxY - minY));
             }
@@ -139,24 +139,32 @@ public class BarChart extends XYChart {
             gradient.setBounds(Math.round(xMin), Math.round(gradientMinY), Math.round(xMax), Math.round(gradientMaxY));
             gradient.draw(canvas);
         } else {
-            if(Math.abs(yMin - yMax) < 1.0F) {
-                if(yMin < yMax) {
+            if (Math.abs(yMin - yMax) < 1.0F) {
+                if (yMin < yMax) {
                     yMax = yMin + 1.0F;
                 } else {
                     yMax = yMin - 1.0F;
                 }
             }
 
-            canvas.drawRect((float)Math.round(xMin), (float)Math.round(yMin), (float)Math.round(xMax), (float)Math.round(yMax), paint);
+            canvas.drawRect((float) Math.round(xMin), (float) Math.round(yMin), (float) Math.round(xMax), (float) Math.round(yMax), paint);
+            //            Path path = new Path();
+            //            path.moveTo((float) Math.round(xMin), 0);
+            //            path.lineTo((float) Math.round(xMin), 60);
+            //            path.lineTo((float) Math.round(xMin) + 40, 60);
+            //            path.lineTo((float) Math.round(xMin) + 40, 40);
+            //            path.lineTo((float) Math.round(xMin) + 10, 40);
+            //            path.lineTo((float) Math.round(xMin) + 10, 0);
+            //            canvas.drawPath(path, paint);
         }
 
     }
 
     protected int getGradientPartialColor(int minColor, int maxColor, float fraction) {
-        int alpha = Math.round(fraction * (float)Color.alpha(minColor) + (1.0F - fraction) * (float)Color.alpha(maxColor));
-        int r = Math.round(fraction * (float)Color.red(minColor) + (1.0F - fraction) * (float)Color.red(maxColor));
-        int g = Math.round(fraction * (float)Color.green(minColor) + (1.0F - fraction) * (float)Color.green(maxColor));
-        int b = Math.round(fraction * (float)Color.blue(minColor) + (1.0F - fraction) * (float)Color.blue(maxColor));
+        int alpha = Math.round(fraction * (float) Color.alpha(minColor) + (1.0F - fraction) * (float) Color.alpha(maxColor));
+        int r = Math.round(fraction * (float) Color.red(minColor) + (1.0F - fraction) * (float) Color.red(maxColor));
+        int g = Math.round(fraction * (float) Color.green(minColor) + (1.0F - fraction) * (float) Color.green(maxColor));
+        int b = Math.round(fraction * (float) Color.blue(minColor) + (1.0F - fraction) * (float) Color.blue(maxColor));
         return Color.argb(alpha, r, g, b);
     }
 
@@ -165,19 +173,19 @@ public class BarChart extends XYChart {
         int length = points.size();
         float halfDiffX = this.getHalfDiffX(points, length, seriesNr);
 
-        for(int i = 0; i < length; i += 2) {
+        for (int i = 0; i < length; i += 2) {
             int index = startIndex + i / 2;
             double value = series.getY(index);
-            if(!this.isNullValue(value)) {
-                float x = ((Float)points.get(i)).floatValue();
-                if(this.mType == Type.DEFAULT) {
-                    x += (float)(seriesIndex * 2) * halfDiffX - ((float)seriesNr - 1.5F) * halfDiffX;
+            if (!this.isNullValue(value)) {
+                float x = ((Float) points.get(i)).floatValue();
+                if (this.mType == Type.DEFAULT) {
+                    x += (float) (seriesIndex * 2) * halfDiffX - ((float) seriesNr - 1.5F) * halfDiffX;
                 }
 
-                if(value >= 0.0D) {
-                    this.drawText(canvas, this.getLabel(renderer.getChartValuesFormat(), value), x, ((Float)points.get(i + 1)).floatValue() - renderer.getChartValuesSpacing(), paint, 0.0F);
+                if (value >= 0.0D) {
+                    this.drawText(canvas, this.getLabel(renderer.getChartValuesFormat(), value), x, ((Float) points.get(i + 1)).floatValue() - renderer.getChartValuesSpacing(), paint, 0.0F);
                 } else {
-                    this.drawText(canvas, this.getLabel(renderer.getChartValuesFormat(), value), x, ((Float)points.get(i + 1)).floatValue() + renderer.getChartValuesTextSize() + renderer.getChartValuesSpacing() - 3.0F, paint, 0.0F);
+                    this.drawText(canvas, this.getLabel(renderer.getChartValuesFormat(), value), x, ((Float) points.get(i + 1)).floatValue() + renderer.getChartValuesTextSize() + renderer.getChartValuesSpacing() - 3.0F, paint, 0.0F);
                 }
             }
         }
@@ -195,24 +203,24 @@ public class BarChart extends XYChart {
 
     protected float getHalfDiffX(List<Float> points, int length, int seriesNr) {
         float barWidth = this.mRenderer.getBarWidth();
-        if(barWidth > 0.0F) {
+        if (barWidth > 0.0F) {
             return barWidth / 2.0F;
         } else {
             int div = length;
-            if(length > 2) {
+            if (length > 2) {
                 div = length - 2;
             }
 
-            float halfDiffX = (((Float)points.get(length - 2)).floatValue() - ((Float)points.get(0)).floatValue()) / (float)div;
-            if(halfDiffX == 0.0F) {
+            float halfDiffX = (((Float) points.get(length - 2)).floatValue() - ((Float) points.get(0)).floatValue()) / (float) div;
+            if (halfDiffX == 0.0F) {
                 halfDiffX = 10.0F;
             }
 
-            if(this.mType != Type.STACKED && this.mType != Type.HEAPED) {
-                halfDiffX /= (float)seriesNr;
+            if (this.mType != Type.STACKED && this.mType != Type.HEAPED) {
+                halfDiffX /= (float) seriesNr;
             }
 
-            return (float)((double)halfDiffX / ((double)this.getCoeficient() * (1.0D + this.mRenderer.getBarSpacing())));
+            return (float) ((double) halfDiffX / ((double) this.getCoeficient() * (1.0D + this.mRenderer.getBarSpacing())));
         }
     }
 

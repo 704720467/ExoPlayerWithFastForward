@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_train_grade"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="cn.zp.zpexoplayer.TrainGradeActivity">
+
+
+    <cn.zp.zpexoplayer.view.DynamicLine
+        android:id="@+id/DynamicLine"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="#ebebeb"/>
+
+</RelativeLayout>
