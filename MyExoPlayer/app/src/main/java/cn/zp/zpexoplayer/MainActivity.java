@@ -321,7 +321,7 @@ public class MainActivity extends AppCompatActivity implements PlaybackControlVi
     public boolean updateProgressBack(long duration, long currentPosition) {
         long dou = currentPosition - oldProgress;
         long nowTime = System.currentTimeMillis();
-        //        dou=20;
+        dou = 20;
         if (dou > 0) {
             Log.e("===================>", "跳转到currtentProgress=" + currentPosition + "；oldProgress=" + oldProgress + ";dou=" + dou + ";time=" + (nowTime - oldTime));
             oldTime = nowTime;

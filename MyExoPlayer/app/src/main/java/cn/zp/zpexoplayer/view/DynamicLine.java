@@ -70,14 +70,14 @@ public class DynamicLine extends View {
             int textTimeX = x + Math.round(myTimes.get(index).getWidth() - mPaint.measureText(myTimes.get(index).getTimeText())) / 2;
             int textNumberX = nextX + Math.round(bitMapWidth - mPaint.measureText(index + "")) / 2;
 
-//            canvas.drawLine(x, 0, x, 60, mPaint);
-//            canvas.drawLine(nextX, 50, nextX, 60, mPaint);
-//            if (index == myTimes.size() - 1)
-//                canvas.drawLine(x + myTimes.get(index).getWidth(), 0, x + myTimes.get(index).getWidth(), 60, mPaint);
-           // canvas.drawBitmap(bitmap, nextX, 60, mPaint); //在10,60处开始绘制图片
+            canvas.drawLine(x, 0, x, 60, mPaint);
+            canvas.drawLine(nextX, 50, nextX, 60, mPaint);
+            if (index == myTimes.size() - 1)
+                canvas.drawLine(x + myTimes.get(index).getWidth(), 0, x + myTimes.get(index).getWidth(), 60, mPaint);
+            canvas.drawBitmap(bitmap, nextX, 60, mPaint); //在10,60处开始绘制图片
             mPaint.setTextSize(30);
             canvas.drawText(myTimes.get(index).getTimeText(), textTimeX, 60 - 20, mPaint);
-            //canvas.drawText(index + "", textNumberX, 60 + 50, mPaint);
+            canvas.drawText(index + "", textNumberX, 60 + 50, mPaint);
         }
     }
 
