@@ -66,7 +66,7 @@ public class Settings {
     // ------------------------------K------------------------------@Sonic
 
     public float getSonicSpeed() {
-        return sp.getFloat(appContext.getString(R.string.pref_key_sonic_speed), 1.3f);
+        return sp.getFloat(appContext.getString(R.string.pref_key_sonic_speed), 1.0f);
     }
 
     public void setSonicSpeed(float speed) {
@@ -74,7 +74,7 @@ public class Settings {
     }
 
     public float getSonicPitch() {
-        return sp.getFloat(appContext.getString(R.string.pref_key_sonic_pitch), 1.3f);
+        return sp.getFloat(appContext.getString(R.string.pref_key_sonic_pitch), 1.0f);
     }
 
     public void setSonicPitch(float pitch) {
@@ -82,7 +82,7 @@ public class Settings {
     }
 
     public float getSonicRate() {
-        return sp.getFloat(appContext.getString(R.string.pref_key_sonic_rate), 1.3f);
+        return sp.getFloat(appContext.getString(R.string.pref_key_sonic_rate), 1.0f);
     }
 
     public void setSonicRate(float rate) {

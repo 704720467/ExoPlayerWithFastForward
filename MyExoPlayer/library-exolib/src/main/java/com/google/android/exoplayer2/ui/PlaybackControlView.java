@@ -573,7 +573,7 @@ public class PlaybackControlView extends FrameLayout {
             } else {
                 delayMs = 200;
             }
-            postDelayed(updateProgressAction, 16);
+            postDelayed(updateProgressAction, 100);
         }
 
         // 更新外面控制栏的进度

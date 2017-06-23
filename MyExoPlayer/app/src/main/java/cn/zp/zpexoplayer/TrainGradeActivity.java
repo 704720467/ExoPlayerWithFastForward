@@ -6,6 +6,7 @@ import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.google.android.exoplayer2.C;
 
@@ -15,15 +16,21 @@ import java.util.Locale;
 
 import cn.zp.zpexoplayer.model.MyTime;
 import cn.zp.zpexoplayer.view.DynamicLine;
+import cn.zp.zpexoplayer.view.DynamicLine2;
 
 public class TrainGradeActivity extends AppCompatActivity {
     private static final int MSG_DATA_CHANGE = 0x11;
-    private DynamicLine dynamicLine;
+    private DynamicLine2 dynamicLine;
     private int mX = -150;
     private ArrayList<MyTime> myTimes;
     StringBuilder formatBuilder;
     private Formatter formatter;
     private int timeWidth;
+    private float s;
+    private TextView time;
+    private long allTime;
+    int count = 1;
+    int spacing=1;
 
     private Handler mHandler = new Handler() {
         @Override
@@ -31,7 +38,9 @@ public class TrainGradeActivity extends AppCompatActivity {
             // TODO Auto-generated method stub
             switch (msg.what) {
                 case MSG_DATA_CHANGE:
-                    dynamicLine.refreshView((Long) msg.obj);
+                    dynamicLine.refreshView(s);
+                    allTime += spacing;
+                    time.setText(stringForTime(allTime));
                     break;
 
                 default:
@@ -49,9 +58,9 @@ public class TrainGradeActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_train_grade);
         initData();
+        time = (TextView) findViewById(R.id.time);
         //动态绘制压力曲线视图
-        dynamicLine = (DynamicLine) this.findViewById(R.id.DynamicLine);
-        dynamicLine.setMyTimes(myTimes);
+        dynamicLine = (DynamicLine2) this.findViewById(R.id.DynamicLine);
 
         //新建线程,模拟消息发送，重绘压力曲线
         new Thread() {
@@ -62,7 +71,7 @@ public class TrainGradeActivity extends AppCompatActivity {
                         Message message = mHandler.obtainMessage(MSG_DATA_CHANGE);
                         message.obj = dou;
                         mHandler.sendMessage(message);
-                        sleep(5);
+                        sleep(spacing);
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -71,14 +80,16 @@ public class TrainGradeActivity extends AppCompatActivity {
         }.start();
 
     }
+
     private void initData() {
+        s = ((spacing * 200f) / 1000);
         timeWidth = 200;
         formatBuilder = new StringBuilder();
         formatter = new Formatter(formatBuilder, Locale.getDefault());
         if (myTimes == null)
             myTimes = new ArrayList<>();
 
-        for (int i = 0; i < 9; i++) {
+        for (int i = 0; i < 100; i++) {
             MyTime m = new MyTime(null, i * 1000, stringForTime(i * 1000), timeWidth, i * timeWidth);
             myTimes.add(m);
         }

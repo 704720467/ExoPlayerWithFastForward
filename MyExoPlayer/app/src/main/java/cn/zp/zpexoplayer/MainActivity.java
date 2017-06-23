@@ -16,20 +16,17 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.SeekBar;
 
-import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ui.PlaybackControlView;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 
 import java.util.ArrayList;
-import java.util.Formatter;
-import java.util.Locale;
 import java.util.Random;
 
 import cn.zp.zpexoplayer.exoplayer.IMediaPlayer;
 import cn.zp.zpexoplayer.exoplayer.KExoMediaPlayer;
 import cn.zp.zpexoplayer.model.MyTime;
 import cn.zp.zpexoplayer.util.DeviceUtil;
-import cn.zp.zpexoplayer.view.DynamicLine;
+import cn.zp.zpexoplayer.view.DynamicLine2;
 import cn.zp.zpexoplayer.view.MyCircleLinearLayout;
 
 public class MainActivity extends AppCompatActivity implements PlaybackControlView.VideoControlLinstion, IMediaPlayer.OnPreparedListener, MyCircleLinearLayout.MyCircleLinearLayListener, View.OnClickListener, IMediaPlayer.OnErrorListener, IMediaPlayer.OnCompletionListener {
@@ -55,17 +52,15 @@ public class MainActivity extends AppCompatActivity implements PlaybackControlVi
     //进度回调
 
     private static final int MSG_DATA_CHANGE = 0x11;
-    private DynamicLine dynamicLine;
+    private DynamicLine2 dynamicLine;
     private ArrayList<MyTime> myTimes;
-    StringBuilder formatBuilder;
-    private Formatter formatter;
-    private int timeWidth;
+    private float s;
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MSG_DATA_CHANGE:
-                    dynamicLine.refreshView((Long) msg.obj);
+                    dynamicLine.refreshView(s);
                     break;
 
                 default:
@@ -99,16 +94,12 @@ public class MainActivity extends AppCompatActivity implements PlaybackControlVi
         if (mSettings == null)
             mSettings = new Settings(this);
         speed = mSettings.getSonicSpeed();
-        timeWidth = 200;
-        formatBuilder = new StringBuilder();
-        formatter = new Formatter(formatBuilder, Locale.getDefault());
         if (myTimes == null)
             myTimes = new ArrayList<>();
 
     }
 
     private void initView() {
-        //        mSeekbar = (SeekBar) findViewById(R.id.seekBar);
         myCircleLinearLayout = (MyCircleLinearLayout) findViewById(R.id.pmn_speed1);
         myCircleLinearLayout.setOnClickListener(this);
         myCircleLinearLayout.setMyCircleLinearLayListener(this);
@@ -126,8 +117,7 @@ public class MainActivity extends AppCompatActivity implements PlaybackControlVi
         mSeek.setOnClickListener(this);
         controller = simpleExoPlayerView.getController();
         seekBar = controller.getProgressBar();
-        dynamicLine = (DynamicLine) this.findViewById(R.id.DynamicLine);
-        dynamicLine.setMyTimes(myTimes);
+        dynamicLine = (DynamicLine2) this.findViewById(R.id.DynamicLine);
     }
 
     @Override
@@ -176,19 +166,7 @@ public class MainActivity extends AppCompatActivity implements PlaybackControlVi
         mediaPlayer.setSonicSpeed(speed);
         mp.start();
         updateFabStatePost(true);
-        //        mSeekbar.setMax(Math.round(mediaPlayer.getDuration()));
-        //mSeekbar.setProgress(Math.round(mediaPlayer.getCurrentPosition()));
-        myTimes.clear();
-        for (int i = 0; i * 1000 <= Math.round(mediaPlayer.getDuration()); i++) {
-            MyTime m = new MyTime(null, i * 1000, stringForTime(i * 1000), timeWidth, i * timeWidth);
-            Log.e("添加tga", "i=" + i);
-            myTimes.add(m);
-        }
-
-        Message message = mHandler.obtainMessage(MSG_DATA_CHANGE);
-        message.obj = oldProgress;
-        mHandler.sendMessage(message);
-        oldProgress = 0;
+        dynamicLine.setData(mp.getDuration());
     }
 
     @Override
@@ -288,6 +266,8 @@ public class MainActivity extends AppCompatActivity implements PlaybackControlVi
             fab.setTag("pause");
             fab.setImageResource(android.R.drawable.ic_media_play);
         }
+        if (dynamicLine != null)
+            dynamicLine.run(isPlaying);
     }
 
     private Runnable rTrue;
@@ -321,15 +301,14 @@ public class MainActivity extends AppCompatActivity implements PlaybackControlVi
     public boolean updateProgressBack(long duration, long currentPosition) {
         long dou = currentPosition - oldProgress;
         long nowTime = System.currentTimeMillis();
-        dou = 20;
         if (dou > 0) {
-            Log.e("===================>", "跳转到currtentProgress=" + currentPosition + "；oldProgress=" + oldProgress + ";dou=" + dou + ";time=" + (nowTime - oldTime));
+            //Log.e("===================>", "跳转到currtentProgress=" + currentPosition + "；oldProgress=" + oldProgress + ";dou=" + dou + ";time=" + (nowTime - oldTime));
             oldTime = nowTime;
             //            Message message = mHandler.obtainMessage(MSG_DATA_CHANGE);
             //            message.obj = dou;
             //            mHandler.sendMessage(message);
             oldProgress = currentPosition;
-            dynamicLine.refreshView(dou);
+            //dynamicLine.setmWaitRefreshLength(currentPosition);
         }
         return false;
     }
@@ -368,17 +347,5 @@ public class MainActivity extends AppCompatActivity implements PlaybackControlVi
             seekPoint++;
             mHandler.postDelayed(updateProgressAction, 4000);
         }
-    }
-
-    private String stringForTime(long timeMs) {
-        if (timeMs == C.TIME_UNSET) {
-            timeMs = 0;
-        }
-        long totalSeconds = (timeMs + 500) / 1000;
-        long seconds = totalSeconds % 60;
-        long minutes = (totalSeconds / 60) % 60;
-        long hours = totalSeconds / 3600;
-        formatBuilder.setLength(0);
-        return formatter.format("%02d:%02d:%02d", hours, minutes, seconds).toString();
     }
 }

@@ -28,6 +28,7 @@
         <activity android:name=".AChartActivity">
         </activity>
         <activity android:name=".TrainGradeActivity">
+
         </activity>
         <activity android:name=".ListViewActivity">
 

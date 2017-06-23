@@ -9,11 +9,11 @@ import java.util.ArrayList;
 
 public class MyTime {
     private ArrayList<MyPoint> myPoints;
-    private long time;
+    private float time;
     private String timeText;
-    private int x;//在屏幕中x位置
-    private int nowX;//现在在屏幕中的位置
-    private int width;//时间表的宽度
+    private float x;//在屏幕中x位置
+    private float nowX;//现在在屏幕中的位置
+    private float width;//时间表的宽度
 
     public MyTime(ArrayList<MyPoint> myPoints, long time, String timeText, int width, int x) {
         this.myPoints = myPoints;
@@ -31,11 +31,19 @@ public class MyTime {
         this.myPoints = myPoints;
     }
 
-    public long getTime() {
+    public float getNowX() {
+        return nowX;
+    }
+
+    public void setNowX(float nowX) {
+        this.nowX = nowX;
+    }
+
+    public float getTime() {
         return time;
     }
 
-    public void setTime(long time) {
+    public void setTime(float time) {
         this.time = time;
     }
 
@@ -47,27 +55,19 @@ public class MyTime {
         this.timeText = timeText;
     }
 
-    public int getNowX() {
-        return nowX;
-    }
-
-    public void setNowX(int nowX) {
-        this.nowX = nowX;
-    }
-
-    public int getWidth() {
+    public float getWidth() {
         return width;
     }
 
-    public void setWidth(int width) {
+    public void setWidth(float width) {
         this.width = width;
     }
 
-    public int getX() {
+    public float getX() {
         return x;
     }
 
-    public void setX(int x) {
+    public void setX(float x) {
         this.x = x;
     }
 }

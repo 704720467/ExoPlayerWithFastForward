@@ -25,7 +25,7 @@ public class DynamicLine extends View {
     private final static String X_KEY = "Xpos";
     private final static String Y_KEY = "Ypos";
     private Bitmap bitmap;
-    private int bitMapWidth;
+    private float bitMapWidth;
     private List<Map<String, Integer>> mListPoint = new ArrayList<Map<String, Integer>>();
 
     private ArrayList<MyTime> myTimes = new ArrayList<>();
@@ -61,14 +61,14 @@ public class DynamicLine extends View {
         mPaint.setAntiAlias(true);
 
         for (int index = 0; index < myTimes.size(); index++) {
-            int x = myTimes.get(index).getNowX();
+            float x = myTimes.get(index).getNowX();
             if (x + myTimes.get(index).getWidth() < 0)
                 continue;
             if (x > getWidth())
                 break;
-            int nextX = myTimes.get(index).getNowX() + myTimes.get(index).getWidth() / 2;
-            int textTimeX = x + Math.round(myTimes.get(index).getWidth() - mPaint.measureText(myTimes.get(index).getTimeText())) / 2;
-            int textNumberX = nextX + Math.round(bitMapWidth - mPaint.measureText(index + "")) / 2;
+            float nextX = myTimes.get(index).getNowX() + myTimes.get(index).getWidth() / 2;
+            float textTimeX = x + (myTimes.get(index).getWidth() - mPaint.measureText(myTimes.get(index).getTimeText())) / 2;
+            float textNumberX = nextX + (bitMapWidth - mPaint.measureText(index + "")) / 2;
 
             canvas.drawLine(x, 0, x, 60, mPaint);
             canvas.drawLine(nextX, 50, nextX, 60, mPaint);
@@ -98,11 +98,9 @@ public class DynamicLine extends View {
         invalidate();
     }
 
-    public void refreshView(long dou) {
+    public void refreshView(float dou) {
         for (MyTime myTime : myTimes) {
-            myTime.setNowX(myTime.getNowX() - (int) Math.floor(200.0 * dou / 1000.0));
+            myTime.setNowX(myTime.getNowX() - dou);
         }
-        invalidate();
     }
-
 }

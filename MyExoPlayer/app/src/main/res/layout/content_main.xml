@@ -5,7 +5,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                android:background="@android:color/white"
                 tools:showIn="@layout/activity_main">
 
 
@@ -25,12 +25,12 @@
         android:gravity="center"/>
 
 
-    <cn.zp.zpexoplayer.view.DynamicLine
+    <cn.zp.zpexoplayer.view.DynamicLine2
         android:id="@+id/DynamicLine"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="100dp"
         android:layout_below="@+id/pmn_speed1"
-        android:background="#ebebeb"/>
+        android:background="#ffffff"/>
 
     <View
         android:id="@+id/mseebar"
