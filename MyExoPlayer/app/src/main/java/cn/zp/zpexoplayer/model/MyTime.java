@@ -1,6 +1,7 @@
 package cn.zp.zpexoplayer.model;
 
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -8,7 +9,8 @@ import java.util.Collections;
  * Created by admin on 2017/6/22.
  */
 
-public class MyTime {
+public class MyTime implements Serializable {
+    static final long serialVersionUID = -1485301123574023028L;
     private ArrayList<MyPoint> myPoints;
     private float time;
     private String timeText;

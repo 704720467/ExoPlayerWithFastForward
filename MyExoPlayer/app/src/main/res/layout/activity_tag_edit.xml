@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:orientation="vertical">
+
+    <cn.zp.zpexoplayer.view.TopLinearLayout
+        android:id="@+id/my_top_lay"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"/>
+
+    <include
+        android:id="@+id/include"
+        layout="@layout/content_tag_edit"/>
+
+</LinearLayout>

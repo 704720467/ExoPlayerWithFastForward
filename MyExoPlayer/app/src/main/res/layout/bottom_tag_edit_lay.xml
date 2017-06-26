@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tag_bottom_lay"
+    android:layout_width="match_parent"
+    android:layout_height="65dp"
+    android:background="@color/white"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:id="@+id/last_lay"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:background="@drawable/lay_press_selector"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp">
+
+        <ImageView
+            android:layout_width="8dp"
+            android:layout_height="15dp"
+            android:layout_marginRight="23dp"
+            android:src="@mipmap/ic_left_arrow"/>
+
+        <LinearLayout
+            android:layout_width="20dp"
+            android:layout_height="36dp"
+            android:background="@mipmap/ic_bottom_flag"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/last_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="4dp"
+                android:text="3"
+                android:textSize="10dp"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/middle_lay"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_weight="1"
+        android:background="@drawable/bg_select_tag"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_marginRight="8dp"
+            android:src="@mipmap/ic_bottom_tag"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="选择标签"
+            android:textSize="15dp"/>
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/next_lay"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:background="@drawable/lay_press_selector"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp">
+
+        <LinearLayout
+            android:layout_width="20dp"
+            android:layout_height="36dp"
+            android:layout_marginRight="23dp"
+            android:background="@mipmap/ic_bottom_flag"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/next_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="4dp"
+                android:text="3"
+                android:textSize="10dp"/>
+        </LinearLayout>
+
+
+        <ImageView
+            android:layout_width="8dp"
+            android:layout_height="15dp"
+            android:src="@mipmap/ic_right_arrow"/>
+    </LinearLayout>
+
+</LinearLayout>

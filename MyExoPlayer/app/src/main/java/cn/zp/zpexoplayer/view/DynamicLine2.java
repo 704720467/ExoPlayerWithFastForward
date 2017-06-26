@@ -129,6 +129,7 @@ public class DynamicLine2 extends View {
      * @param tagTime 点击tag的时间
      */
     private long startTime;
+    private int existTagCount = 0;//已经存在多少个tag了
 
     public synchronized void addTag(long tagTime) {
         long newTime = System.currentTimeMillis();
@@ -136,7 +137,6 @@ public class DynamicLine2 extends View {
             return;
         startTime = newTime;
         boolean tagExist = false;
-        int existTagCount = 0;//已经存在多少个tag了
         for (int i = 0; i < myTimes.size(); i++) {
             MyTime myTime = myTimes.get(i);
 
@@ -153,11 +153,11 @@ public class DynamicLine2 extends View {
                 continue;
             //对已有的tag进行编号排序
             myTime.sortAndSetNumber(existTagCount);
-            existTagCount += myTime.getMyPoints().size();
         }
 
-        final int tagCount = existTagCount;
         if (tagExist) {
+            existTagCount++;
+            final int tagCount = existTagCount;
             tagView.post(new Runnable() {
                 @Override
                 public void run() {
@@ -253,5 +253,21 @@ public class DynamicLine2 extends View {
 
     public void setTagView(TextView tagView) {
         this.tagView = tagView;
+    }
+
+    public ArrayList<MyTime> getMyTimes() {
+        return myTimes;
+    }
+
+    public void setMyTimes(ArrayList<MyTime> myTimes) {
+        this.myTimes = myTimes;
+    }
+
+    public int getExistTagCount() {
+        return existTagCount;
+    }
+
+    public void setExistTagCount(int existTagCount) {
+        this.existTagCount = existTagCount;
     }
 }

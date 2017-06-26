@@ -39,7 +39,8 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:background="@drawable/lay_press_selector"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:paddingRight="15dp">
 
         <ImageButton
             android:id="@+id/img_right"
@@ -47,8 +48,16 @@
             android:layout_height="match_parent"
             android:background="@drawable/lay_press_selector"
             android:paddingLeft="15dp"
-            android:paddingRight="15dp"
             android:src="@mipmap/ic_black_check"/>
+
+        <TextView
+            android:id="@+id/tv_right"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@drawable/lay_press_selector"
+            android:gravity="center"
+            android:text="提交"
+            android:textSize="14dp"/>
     </LinearLayout>
 
 </LinearLayout>

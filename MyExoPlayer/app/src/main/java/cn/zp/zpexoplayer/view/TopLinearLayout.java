@@ -22,6 +22,7 @@ public class TopLinearLayout extends LinearLayout implements View.OnClickListene
     private ImageView mBack;
     private ImageView mRighrt;
     private TextView mTitle;
+    private TextView mRightTitle;
     private int height;
     private TopLinearLayListener mTopLinearLayListener;
 
@@ -52,6 +53,8 @@ public class TopLinearLayout extends LinearLayout implements View.OnClickListene
         mBack.setOnClickListener(this);
         mRighrt = (ImageView) mView.findViewById(R.id.img_right);
         mRighrt.setOnClickListener(this);
+        mRightTitle = (TextView) mView.findViewById(R.id.tv_right);
+        mRightTitle.setOnClickListener(this);
         mTitle = (TextView) mView.findViewById(R.id.tv_title);
         addView(mView);
     }
@@ -68,6 +71,7 @@ public class TopLinearLayout extends LinearLayout implements View.OnClickListene
                 break;
             case R.id.right_lay:
             case R.id.img_right:
+            case R.id.tv_right:
                 mTopLinearLayListener.onTouchRightButton();
                 break;
         }
