@@ -60,8 +60,11 @@ import com.google.android.exoplayer2.util.Util;
 
 import java.io.FileDescriptor;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import cn.zp.zpexoplayer.util.DeviceUtil;
+import cn.zp.zpexoplayer.view.DynamicLine2;
 
 public class KExoMediaPlayer extends AbstractMediaPlayer {
 
@@ -76,6 +79,7 @@ public class KExoMediaPlayer extends AbstractMediaPlayer {
     private static final DefaultBandwidthMeter BANDWIDTH_METER = new DefaultBandwidthMeter();
     private Surface surface;
     private PlaybackControlView mController;
+    private DynamicLine2 dynamicLine2;
 
     public KExoMediaPlayer(Context context, SimpleExoPlayerView simpleExoPlayerView, PlaybackControlView.VideoControlLinstion mVideoControlLinstion) {
         this.context = context.getApplicationContext();
@@ -101,6 +105,11 @@ public class KExoMediaPlayer extends AbstractMediaPlayer {
         mainHandler = new Handler();
         userAgent = Util.getUserAgent(this.context, "KExoMediaPlayer");
         mediaDataSourceFactory = new DefaultDataSourceFactory(this.context, userAgent, BANDWIDTH_METER);
+    }
+
+
+    public void setDynamicLine2(DynamicLine2 dynamicLine2) {
+        this.dynamicLine2 = dynamicLine2;
     }
 
     // ============================@Source@============================
@@ -168,6 +177,7 @@ public class KExoMediaPlayer extends AbstractMediaPlayer {
                 seekTo(0);
             else
                 player.setPlayWhenReady(true);
+            startTimer();
         }
     }
 
@@ -175,12 +185,14 @@ public class KExoMediaPlayer extends AbstractMediaPlayer {
     public void pause() throws IllegalStateException {
         if (player != null)
             player.setPlayWhenReady(false);
+        stopTimer();
     }
 
     @Override
     public void stop() throws IllegalStateException {
         if (player != null)
             player.stop();
+        stopTimer();
     }
 
     @Override
@@ -469,6 +481,52 @@ public class KExoMediaPlayer extends AbstractMediaPlayer {
             return player.getPlaybackRate();
         else
             return 1.0f;
+    }
+
+
+    // ============================@Timer@============================Auto Plus/Minus
+    private Timer mTimer;
+    private TimerTask mTimerTask;
+    private boolean mTimerStart = false;
+
+    public void startTimer() {
+        if (mTimerStart) {
+            return;
+        }
+        if (mTimer == null)
+            mTimer = new Timer();
+        mTimerTask = new MyTimerTask();
+        mTimer.schedule(mTimerTask, 0, 4);
+        mTimerStart = true;
+    }
+
+    public void stopTimer() {
+        if (!mTimerStart) {
+            return;
+        }
+        mTimerStart = false;
+        if (mTimerTask != null) {
+            mTimerTask.cancel();
+            mTimerTask = null;
+            mTimer = null;
+        }
+    }
+
+    class MyTimerTask extends TimerTask {
+        @Override
+        public void run() {
+            // Child Thread
+            final long position = player == null ? 0 : player.getCurrentPosition();
+            // 更新外面控制栏的进度
+            if (dynamicLine2 != null)
+                dynamicLine2.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        //Main Thread
+                        dynamicLine2.setmWaitRefreshLength(position);
+                    }
+                });
+        }
     }
 
 }

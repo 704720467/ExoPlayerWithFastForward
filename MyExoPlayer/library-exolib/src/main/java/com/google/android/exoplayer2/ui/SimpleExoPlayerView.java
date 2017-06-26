@@ -265,34 +265,11 @@ public final class SimpleExoPlayerView extends FrameLayout {
         }
 
         // Playback control view.
-        //        View controllerPlaceholder = findViewById(R.id.exo_controller_placeholder);
-        //        if (controllerPlaceholder != null) {
-        //            // Note: rewindMs and fastForwardMs are passed via attrs, so we don't need to make explicit
-        //            // calls to set them.
-        //            this.controller = new PlaybackControlView(context, attrs);
-        //            controller.setLayoutParams(controllerPlaceholder.getLayoutParams());
-        //            ViewGroup parent = ((ViewGroup) controllerPlaceholder.getParent());
-        //            int controllerIndex = parent.indexOfChild(controllerPlaceholder);
-        //            parent.removeView(controllerPlaceholder);
-        //            parent.addView(controller, controllerIndex);
-        //        } else {
-        //            this.controller = null;
-        //        }
-        //        this.controllerShowTimeoutMs = controller != null ? controllerShowTimeoutMs : 0;
-        //        this.useController = useController && controller != null;
-        //        hideController();
-    }
-
-
-    /**
-     * 张鹏,设置控制栏
-     *
-     * @param controllerPlaceholder 控制条布局文件
-     * @param useController         true使用，false不适用
-     */
-    public void setController(View controllerPlaceholder, boolean useController) {
+        View controllerPlaceholder = findViewById(R.id.exo_controller_placeholder);
         if (controllerPlaceholder != null) {
-            this.controller = new PlaybackControlView(getContext());
+            // Note: rewindMs and fastForwardMs are passed via attrs, so we don't need to make explicit
+            // calls to set them.
+            this.controller = new PlaybackControlView(context, attrs);
             controller.setLayoutParams(controllerPlaceholder.getLayoutParams());
             ViewGroup parent = ((ViewGroup) controllerPlaceholder.getParent());
             int controllerIndex = parent.indexOfChild(controllerPlaceholder);
@@ -305,6 +282,29 @@ public final class SimpleExoPlayerView extends FrameLayout {
         this.useController = useController && controller != null;
         hideController();
     }
+
+
+    /**
+     * 张鹏,设置控制栏
+     *
+     * @param controllerPlaceholder 控制条布局文件
+     * @param useController         true使用，false不适用
+     */
+    //    public void setController(View controllerPlaceholder, boolean useController) {
+    //        if (controllerPlaceholder != null) {
+    //            this.controller = new PlaybackControlView(getContext());
+    //            controller.setLayoutParams(controllerPlaceholder.getLayoutParams());
+    //            ViewGroup parent = ((ViewGroup) controllerPlaceholder.getParent());
+    //            int controllerIndex = parent.indexOfChild(controllerPlaceholder);
+    //            parent.removeView(controllerPlaceholder);
+    //            parent.addView(controller, controllerIndex);
+    //        } else {
+    //            this.controller = null;
+    //        }
+    //        this.controllerShowTimeoutMs = controller != null ? controllerShowTimeoutMs : 0;
+    //        this.useController = useController && controller != null;
+    //        hideController();
+    //    }
 
     /**
      * Returns the player currently set on this view, or null if no player is set.

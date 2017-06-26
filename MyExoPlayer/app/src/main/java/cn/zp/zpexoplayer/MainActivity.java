@@ -3,18 +3,17 @@ package cn.zp.zpexoplayer;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.exoplayer2.ui.PlaybackControlView;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
@@ -27,20 +26,23 @@ import cn.zp.zpexoplayer.exoplayer.KExoMediaPlayer;
 import cn.zp.zpexoplayer.model.MyTime;
 import cn.zp.zpexoplayer.util.DeviceUtil;
 import cn.zp.zpexoplayer.view.DynamicLine2;
-import cn.zp.zpexoplayer.view.MyCircleLinearLayout;
+import cn.zp.zpexoplayer.view.SeekBarLinearLayout;
+import cn.zp.zpexoplayer.view.SpeedLinearLayout;
+import cn.zp.zpexoplayer.view.TopLinearLayout;
 
-public class MainActivity extends AppCompatActivity implements PlaybackControlView.VideoControlLinstion, IMediaPlayer.OnPreparedListener, MyCircleLinearLayout.MyCircleLinearLayListener, View.OnClickListener, IMediaPlayer.OnErrorListener, IMediaPlayer.OnCompletionListener {
-    private Settings mSettings;
-    private IMediaPlayer mediaPlayer;
-
-
-    private FloatingActionButton fab;
-    private FloatingActionButton mSeek;
-    private SimpleExoPlayerView simpleExoPlayerView;
-    MyCircleLinearLayout myCircleLinearLayout;
-    //    private SeekBar mSeekbar;
-    private ArrayList<Integer> myRandom = new ArrayList<>();
+public class MainActivity extends AppCompatActivity implements SeekBarLinearLayout.MySeekBarListener, TopLinearLayout.TopLinearLayListener, SpeedLinearLayout.MyCircleLinearLayListener, PlaybackControlView.VideoControlLinstion, IMediaPlayer.OnPreparedListener, View.OnClickListener, IMediaPlayer.OnErrorListener, IMediaPlayer.OnCompletionListener {
     private int seekPoint = 0;
+    private Settings mSettings;
+    private int tagCount = 0;
+    private TextView mTagCount;
+    private LinearLayout mTagLay;
+    private ImageView mImageViewPlayOrPause;
+
+    private IMediaPlayer mediaPlayer;
+    private SimpleExoPlayerView simpleExoPlayerView;
+    private ArrayList<Integer> myRandom = new ArrayList<>();
+    private SpeedLinearLayout speedLinearLayout;
+
     private final Runnable updateProgressAction = new Runnable() {
         @Override
         public void run() {
@@ -50,74 +52,66 @@ public class MainActivity extends AppCompatActivity implements PlaybackControlVi
     PlaybackControlView controller;
     SeekBar seekBar;
     //进度回调
+    private TopLinearLayout topLinearLayout;
 
     private static final int MSG_DATA_CHANGE = 0x11;
     private DynamicLine2 dynamicLine;
+    private SeekBarLinearLayout mSeekBarLinearLayout;
     private ArrayList<MyTime> myTimes;
     private float s;
-    private Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case MSG_DATA_CHANGE:
-                    dynamicLine.refreshView(s);
-                    break;
-
-                default:
-                    break;
-            }
-            super.handleMessage(msg);
-        }
-    };
     private long oldProgress;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_main);
         initData();
         initView();
-
         switchMediaEngine(null);
         Intent intent = getIntent();
         String intentAction = intent.getAction();
         if (!TextUtils.isEmpty(intentAction)) {
-            if (intentAction.equals(Intent.ACTION_VIEW)) {
-                goPlay(intent.getDataString());
-            }
+            //if (intentAction.equals(Intent.ACTION_VIEW)) {
+            goPlay(null);
+            // }
         }
     }
 
     private void initData() {
         if (mSettings == null)
             mSettings = new Settings(this);
-        speed = mSettings.getSonicSpeed();
+        speed = 1.0f;
         if (myTimes == null)
             myTimes = new ArrayList<>();
 
     }
 
     private void initView() {
-        myCircleLinearLayout = (MyCircleLinearLayout) findViewById(R.id.pmn_speed1);
-        myCircleLinearLayout.setOnClickListener(this);
-        myCircleLinearLayout.setMyCircleLinearLayListener(this);
+        topLinearLayout = (TopLinearLayout) findViewById(R.id.my_top_lay);
+        topLinearLayout.setTopLinearLayListener(this);
+        topLinearLayout.setmTitleText("标签标记");
+        mImageViewPlayOrPause = (ImageView) findViewById(R.id.img_play_or_pause);
+        mImageViewPlayOrPause.setOnClickListener(this);
+        mTagCount = (TextView) findViewById(R.id.tv_tag_count);
+        mTagLay = (LinearLayout) findViewById(R.id.tag_lay);
+        mTagLay.setOnClickListener(this);
+        mTagCount = (TextView) findViewById(R.id.tv_tag_count);
 
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(this);
+        speedLinearLayout = (SpeedLinearLayout) findViewById(R.id.speedLinearLayout);
+        speedLinearLayout.setMyCircleLinearLayListener(this);
 
         simpleExoPlayerView = (SimpleExoPlayerView) findViewById(R.id.player_view);
         ViewGroup.LayoutParams lp = simpleExoPlayerView.getLayoutParams();
         lp.width = DeviceUtil.getScreenWidthSize(this);
         lp.height = DeviceUtil.getPlayerHeightSize(this);
         simpleExoPlayerView.setLayoutParams(lp);
-        simpleExoPlayerView.setController(findViewById(R.id.mseebar), true);
-        mSeek = (FloatingActionButton) findViewById(R.id.seek);
-        mSeek.setOnClickListener(this);
         controller = simpleExoPlayerView.getController();
         seekBar = controller.getProgressBar();
+        mSeekBarLinearLayout = (SeekBarLinearLayout) findViewById(R.id.my_seek_bar);
+        mSeekBarLinearLayout.setMySeekBarListener(this);
         dynamicLine = (DynamicLine2) this.findViewById(R.id.DynamicLine);
+        dynamicLine.setSeekBarLayout(mSeekBarLinearLayout);
+        dynamicLine.setTagView(mTagCount);
     }
 
     @Override
@@ -136,26 +130,22 @@ public class MainActivity extends AppCompatActivity implements PlaybackControlVi
         super.onPause();
         if (mediaPlayer != null && mediaPlayer.isPlaying())
             mediaPlayer.stop();
-        mHandler.removeCallbacks(updateProgressAction);
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.pmn_speed1:
-                myCircleLinearLayout.onClick();
-                break;
-            case R.id.fab:
-                if ("pause".equals(v.getTag()))
-                    goPlay(null);
-                else if ("start".equals(v.getTag())) {
+            case R.id.img_play_or_pause:
+                if ("pause".equals(v.getTag())) {
+                    mediaPlayer.start();
+                    updateFabState(true);
+                } else if ("start".equals(v.getTag())) {
                     mediaPlayer.pause();
                     updateFabState(false);
                 }
                 break;
-            case R.id.seek:
-                mSeek.setVisibility(View.GONE);
-                createRandomNumber();
+            case R.id.tag_lay:
+                dynamicLine.addTag(mediaPlayer.getCurrentPosition());
                 break;
         }
     }
@@ -164,20 +154,18 @@ public class MainActivity extends AppCompatActivity implements PlaybackControlVi
     @Override
     public void onPrepared(IMediaPlayer mp) {
         mediaPlayer.setSonicSpeed(speed);
-        mp.start();
-        updateFabStatePost(true);
+        //mp.start();
+        updateFabStatePost(mp.isPlaying());
         dynamicLine.setData(mp.getDuration());
     }
 
     @Override
     public boolean onError(IMediaPlayer mp, int what, int extra) {
-        showSnackbar("onError : " + what + "#" + extra);
         return false;
     }
 
     @Override
     public void onCompletion(IMediaPlayer mp) {
-        showSnackbar("Play Completion");
         updateFabStatePost(false);
     }
 
@@ -186,11 +174,10 @@ public class MainActivity extends AppCompatActivity implements PlaybackControlVi
 
     @Override
     public void onNumChange(View view, float num) {
-        if (view.getId() == R.id.pmn_speed1) {
-            mSettings.setSonicSpeed(speed = num);
-            mediaPlayer.setSonicSpeed(num);
-        }
+        mSettings.setSonicSpeed(speed = num);
+        mediaPlayer.setSonicSpeed(num);
     }
+
 
     public void switchMediaEngine(View v) {
         if (mediaPlayer != null)
@@ -201,6 +188,7 @@ public class MainActivity extends AppCompatActivity implements PlaybackControlVi
         mediaPlayer.setOnPreparedListener(this);
         mediaPlayer.setOnErrorListener(this);
         mediaPlayer.setOnCompletionListener(this);
+        ((KExoMediaPlayer) mediaPlayer).setDynamicLine2(dynamicLine);
 
         updateFabState(false);
     }
@@ -215,10 +203,8 @@ public class MainActivity extends AppCompatActivity implements PlaybackControlVi
             if (!TextUtils.isEmpty(path)) {
                 mediaPlayer.setDataSource(path);
                 mediaPlayer.prepareAsync();
-                showSnackbar("goPlayAudioPath...");
             } else {
                 goPlayDemo();
-                showSnackbar("goPlayDemo...");
             }
         } catch (Exception e) {//IO
             e.printStackTrace();
@@ -245,26 +231,13 @@ public class MainActivity extends AppCompatActivity implements PlaybackControlVi
 
     private Snackbar snackbar;
 
-    public void showSnackbar(@NonNull CharSequence text) {
-
-        //        if (fab != null && !TextUtils.isEmpty(text)) {
-        //            if (snackbar == null)
-        //                snackbar = Snackbar.make(fab, text, Snackbar.LENGTH_LONG).setAction("Action", null);
-        //            else
-        //                snackbar.setText(text);
-        //
-        //            if (!snackbar.isShown())
-        //                snackbar.show();
-        //        }
-    }
-
     private void updateFabState(boolean isPlaying) {
         if (isPlaying) {
-            fab.setTag("start");
-            fab.setImageResource(android.R.drawable.ic_media_pause);
+            mImageViewPlayOrPause.setTag("start");
+            mImageViewPlayOrPause.setImageResource(R.mipmap.ic_tag_pause);
         } else {
-            fab.setTag("pause");
-            fab.setImageResource(android.R.drawable.ic_media_play);
+            mImageViewPlayOrPause.setTag("pause");
+            mImageViewPlayOrPause.setImageResource(R.mipmap.ic_tag_play);
         }
         if (dynamicLine != null)
             dynamicLine.run(isPlaying);
@@ -282,7 +255,7 @@ public class MainActivity extends AppCompatActivity implements PlaybackControlVi
                         updateFabState(true);
                     }
                 };
-            fab.post(rTrue);
+            mImageViewPlayOrPause.post(rTrue);
         } else {
             if (rFalse == null)
                 rFalse = new Runnable() {
@@ -291,7 +264,7 @@ public class MainActivity extends AppCompatActivity implements PlaybackControlVi
                         updateFabState(false);
                     }
                 };
-            fab.post(rFalse);
+            mImageViewPlayOrPause.post(rFalse);
         }
     }
 
@@ -299,17 +272,7 @@ public class MainActivity extends AppCompatActivity implements PlaybackControlVi
 
     @Override
     public boolean updateProgressBack(long duration, long currentPosition) {
-        long dou = currentPosition - oldProgress;
-        long nowTime = System.currentTimeMillis();
-        if (dou > 0) {
-            //Log.e("===================>", "跳转到currtentProgress=" + currentPosition + "；oldProgress=" + oldProgress + ";dou=" + dou + ";time=" + (nowTime - oldTime));
-            oldTime = nowTime;
-            //            Message message = mHandler.obtainMessage(MSG_DATA_CHANGE);
-            //            message.obj = dou;
-            //            mHandler.sendMessage(message);
-            oldProgress = currentPosition;
-            //dynamicLine.setmWaitRefreshLength(currentPosition);
-        }
+        //dynamicLine.setmWaitRefreshLength(currentPosition);
         return false;
     }
 
@@ -324,9 +287,6 @@ public class MainActivity extends AppCompatActivity implements PlaybackControlVi
     public void onProgressChanged(long currtentProgress) {
         long dou = currtentProgress - oldProgress;
         Log.e("===================>", "拖动跳转到currtentProgress=" + currtentProgress + "；oldProgress=" + oldProgress + ";dou=" + dou);
-        Message message = mHandler.obtainMessage(MSG_DATA_CHANGE);
-        message.obj = dou;
-        mHandler.sendMessage(message);
         oldProgress = currtentProgress;
     }
 
@@ -337,7 +297,6 @@ public class MainActivity extends AppCompatActivity implements PlaybackControlVi
             myRandom.add(time);
             Log.e("===================>", "添加seek到：i=" + i + "；；时间为=" + time + ";z最大时间=" + seekBar.getMax());
         }
-        mHandler.postDelayed(updateProgressAction, 2000);
     }
 
 
@@ -345,7 +304,36 @@ public class MainActivity extends AppCompatActivity implements PlaybackControlVi
         if (mediaPlayer != null && seekPoint < myRandom.size()) {
             controller.seekTo(controller.positionValue(myRandom.get(seekPoint)));
             seekPoint++;
-            mHandler.postDelayed(updateProgressAction, 4000);
         }
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) {
+            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE //
+                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION //
+                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN //
+                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION //
+                    | View.SYSTEM_UI_FLAG_FULLSCREEN //
+                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        }
+    }
+
+
+    @Override
+    public void onTouchBackButton() {
+        finish();
+    }
+
+    @Override
+    public void onTouchRightButton() {
+        Toast.makeText(this, "下个界面", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void seekTo(long position) {
+        if (mediaPlayer != null)
+            controller.seekTo(position);
     }
 }

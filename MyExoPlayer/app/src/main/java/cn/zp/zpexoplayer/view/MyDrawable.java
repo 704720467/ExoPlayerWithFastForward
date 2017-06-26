@@ -1,6 +1,8 @@
 package cn.zp.zpexoplayer.view;
 
+import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
@@ -10,12 +12,14 @@ import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.SystemClock;
-import android.util.Log;
 import android.view.MotionEvent;
 
 import java.util.ArrayList;
 
+import cn.zp.zpexoplayer.R;
+import cn.zp.zpexoplayer.model.MyPoint;
 import cn.zp.zpexoplayer.model.MyTime;
+import cn.zp.zpexoplayer.util.DeviceUtil;
 import cn.zp.zpexoplayer.util.MyLogUtil;
 
 /**
@@ -31,18 +35,36 @@ public class MyDrawable extends Drawable {
     private Paint mLinePaint;
     private Paint mRectPaint;
     private Bitmap bitmap;
+    private Bitmap verticalLineBt;
     private float bitMapWidth;
-    private int screenWidthSize;
-    private int margenSize = 20;
-    private int timeLineHeight = 40;//时间长线长度
-    private int timeSortLineHeight = 10;//时间短线长度
-    private int bannerolHeight = 120;
+    private float screenWidthSize;
+    private int margenSize;
+    private int timeLineHeight;//时间长线长度
+    private int timeSortLineHeight;//时间短线长度
+    private int bannerolHeight;
+    private int topLineY;//最顶部线x坐标
+    private int bottomLineY;//最底部线x坐标
+    private int timeLongLineStartY;//时间轴上长竖线x开始坐标
+    private int timeLongLineEndY;//时间轴上长竖线x结束坐标
+    private int timeShortLineStartY;//时间轴上短竖线x结束坐标
+    private int timeShortLineEndY;//时间轴上短竖线x结束坐标
+    private int bannerolStartY;//旗帜的开始坐标
+    private int bannerolEndY;//旗帜结束的Y坐标
+    private int timeTextStartY;//旗帜结束的Y坐标
+    private int textNumberStartY;//旗帜结束的Y坐标
+    private int timeTextSize;//旗帜结束的Y坐标
+    private int numberTextSize;//旗帜结束的Y坐标
 
 
-    public MyDrawable(int screenWidthSize, Bitmap bitmap) {
+    private Context context;
+
+
+    public MyDrawable(Context context, int screenWidthSize) {
+        this.context = context;
         this.screenWidthSize = screenWidthSize;
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mPaint.setColor(Color.parseColor("#F4F5F9"));
+        mPaint.setColor(Color.parseColor("#ebebeb"));
+        mPaint.setStrokeWidth((float) DeviceUtil.dp2px(context, 1));
         mPaint.setAntiAlias(true);// 抗锯齿
         mPaint.setDither(true);  // 防止抖动
         mPaint.setStyle(Paint.Style.FILL);
@@ -54,13 +76,33 @@ public class MyDrawable extends Drawable {
 
         mLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mLinePaint.setColor(Color.parseColor("#ebebeb"));
+        mLinePaint.setStrokeWidth((float) DeviceUtil.dp2px(context, 1));
         mLinePaint.setAntiAlias(true);// 抗锯齿
         mLinePaint.setDither(true);  // 防止抖动
         mLinePaint.setStyle(Paint.Style.FILL);
 
+        margenSize = DeviceUtil.dp2px(context, 10);
+        timeLineHeight = DeviceUtil.dp2px(context, 20);//时间长线长度
+        timeSortLineHeight = DeviceUtil.dp2px(context, 5);//时间短线长度
+        bannerolHeight = DeviceUtil.dp2px(context, 60);
+        timeTextSize = DeviceUtil.dp2px(context, 10);
+        numberTextSize = DeviceUtil.dp2px(context, 9);
 
-        this.bitmap = zoomImg(bitmap, 36, 120);
+        topLineY = 0;
+        bottomLineY = margenSize * 2 + timeLineHeight + bannerolHeight;
+        timeLongLineStartY = margenSize;
+        timeLongLineEndY = margenSize + timeLineHeight;
+        timeShortLineStartY = timeLongLineStartY + timeLineHeight - timeSortLineHeight;
+        timeShortLineEndY = timeLongLineEndY;
+        bannerolStartY = timeShortLineEndY;
+        bannerolEndY = bannerolStartY + bannerolHeight;
+        timeTextStartY = margenSize + (timeLineHeight - timeSortLineHeight) / 2;
+        textNumberStartY = bannerolStartY + DeviceUtil.dp2px(context, 9);
+
+
+        this.bitmap = zoomImg(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_flag), DeviceUtil.dp2px(context, 18), DeviceUtil.dp2px(context, 60));
         bitMapWidth = this.bitmap.getWidth();
+        verticalLineBt = zoomImg(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_red_line), DeviceUtil.dp2px(context, 1), DeviceUtil.dp2px(context, 60));
     }
 
     public void onTouch(MotionEvent event) {
@@ -117,14 +159,18 @@ public class MyDrawable extends Drawable {
     }
 
     private long oldTime;
-    private float length;
+    private int length;
 
-    public void refreshView(float dou) {
+    public void refreshView(int dou) {
         long newTime = System.currentTimeMillis();
-        length = length + dou;
-        //        length = dou;
-        Log.e("", "要刷新的长度为length=" + length + ";步长=" + dou + ";耗时：" + (newTime - oldTime));
+        //length = length + dou;
+        //Log.e("===================>", "要刷新的长度为length=" + length + ";步长=" + dou + ";耗时：" + (newTime - oldTime));
         oldTime = newTime;
+    }
+
+
+    public void setmWaitRefreshLength(int mWaitRefreshLength) {
+        length = mWaitRefreshLength;
     }
 
     /**
@@ -140,39 +186,49 @@ public class MyDrawable extends Drawable {
     @Override
     public void draw(Canvas canvas) {
         //drawTopLine
-        canvas.drawLine(0, 0, screenWidthSize, 0, mPaint);
-
+        canvas.drawLine(0, topLineY, screenWidthSize, topLineY, mPaint);
         //画底部
-        canvas.drawRect(0, margenSize + timeLineHeight, screenWidthSize, margenSize + timeLineHeight + bannerolHeight, mPaint); //在10,60处开始绘制图片
-
+        canvas.drawRect(0, bannerolStartY, screenWidthSize, bannerolEndY, mPaint); //在10,60处开始绘制图片
         //draw content
         for (int index = 0; index < myTimes.size(); index++) {
-            float x = myTimes.get(index).getNowX() - length;
+            int x = Math.round(myTimes.get(index).getNowX()) - length;
             if (x + myTimes.get(index).getWidth() < 0)
                 continue;
             if (x > screenWidthSize)
                 break;
-            float nextX = x + myTimes.get(index).getWidth() / 2;
-            float textTimeX = x + (myTimes.get(index).getWidth() - mPaint.measureText(myTimes.get(index).getTimeText())) / 2;
-            float textNumberX = nextX + (bitMapWidth - mPaint.measureText(index + "")) / 2;
+            int nextX = x + Math.round(myTimes.get(index).getWidth() / 2);
 
-            canvas.drawLine(x, margenSize, x, margenSize + timeLineHeight, mLinePaint);
-            canvas.drawLine(nextX, margenSize + timeLineHeight - timeSortLineHeight, nextX, margenSize + timeLineHeight, mLinePaint);
+            canvas.drawLine(x, timeLongLineStartY, x, timeLongLineEndY, mLinePaint);
+            canvas.drawLine(nextX, timeShortLineStartY, nextX, timeShortLineEndY, mLinePaint);
             if (index == myTimes.size() - 1)
-                canvas.drawLine(x + myTimes.get(index).getWidth(), margenSize, x + myTimes.get(index).getWidth(), margenSize + timeLineHeight, mLinePaint);
+                canvas.drawLine(x + Math.round(myTimes.get(index).getWidth()), timeLongLineStartY, Math.round(x + myTimes.get(index).getWidth()), timeLongLineEndY, mLinePaint);
 
-            canvas.drawBitmap(bitmap, nextX, margenSize + timeLineHeight, mPaint);
-
-            mTextPaint.setTextSize(20);
+            mTextPaint.setTextSize(timeTextSize);
+            int textTimeX = x + Math.round(((myTimes.get(index).getWidth() - mTextPaint.measureText(myTimes.get(index).getTimeText())) / 2));
             mTextPaint.setColor(Color.parseColor("#333333"));
-            canvas.drawText(myTimes.get(index).getTimeText(), textTimeX, margenSize + timeLineHeight - timeSortLineHeight, mTextPaint);
-            mTextPaint.setTextSize(18);
-            mTextPaint.setColor(Color.parseColor("#fc5f3e"));
-            canvas.drawText(index + "", textNumberX, 60 + 50, mTextPaint);
+            canvas.drawText(myTimes.get(index).getTimeText(), textTimeX, timeTextStartY, mTextPaint);
+            //绘制旗帜和编号
+            drawFlag(canvas, myTimes.get(index));
         }
 
+        //画红线
+        canvas.drawBitmap(verticalLineBt, screenWidthSize / 2 - 1, bannerolStartY, mPaint);
         //drawBottomLine
-        canvas.drawLine(0, 200, screenWidthSize, 200, mPaint);
+        canvas.drawLine(0, bottomLineY, screenWidthSize, bottomLineY, mPaint);
+    }
+
+    private void drawFlag(Canvas canvas, MyTime myTime) {
+        ArrayList<MyPoint> myPoints = myTime.getMyPoints();
+        if (myPoints == null || myPoints.size() == 0)
+            return;
+        for (MyPoint point : myPoints) {
+            int startX = Math.round(myTime.getNowX() - length + point.getStartX());
+            canvas.drawBitmap(bitmap, startX, bannerolStartY, mPaint);
+            mTextPaint.setTextSize(numberTextSize);
+            int textNumberX = Math.round(startX + (bitMapWidth - mTextPaint.measureText(point.getNumber() + "")) / 2);
+            mTextPaint.setColor(Color.parseColor("#fc5f3e"));
+            canvas.drawText(point.getNumber() + "", textNumberX, textNumberStartY, mTextPaint);
+        }
     }
 
     @Override

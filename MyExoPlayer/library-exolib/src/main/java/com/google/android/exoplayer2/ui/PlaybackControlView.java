@@ -246,6 +246,7 @@ public class PlaybackControlView extends FrameLayout {
     private int fastForwardMs;
     private int showTimeoutMs;
     private long hideAtMs;
+    private boolean playPauseButtonCanUse;//开始暂停按钮是否能用
 
     private final Runnable updateProgressAction = new Runnable() {
         @Override
@@ -490,7 +491,7 @@ public class PlaybackControlView extends FrameLayout {
     }
 
     private void updatePlayPauseButton() {
-        if (!isVisible() || !isAttachedToWindow) {
+        if (!isVisible() || !isAttachedToWindow || !playPauseButtonCanUse) {
             return;
         }
         boolean requestPlayPauseFocus = false;
@@ -539,9 +540,9 @@ public class PlaybackControlView extends FrameLayout {
         //        }
         long duration = player == null ? 0 : player.getDuration();
         long position = player == null ? 0 : player.getCurrentPosition();
-        long durationUs = player == null ? 0 : player.getDurationUs();
-        long positionUs = player == null ? 0 : player.getCurrentPositionUs();
-
+        // 更新外面控制栏的进度
+        //        if (mVideoControlLinstion != null)
+        //            mVideoControlLinstion.updateProgressBack(duration, position);
         //更新本控制栏进度
         if (isVisible()) {
             if (durationView != null) {
@@ -573,12 +574,8 @@ public class PlaybackControlView extends FrameLayout {
             } else {
                 delayMs = 200;
             }
-            postDelayed(updateProgressAction, 100);
+            postDelayed(updateProgressAction, 8);
         }
-
-        // 更新外面控制栏的进度
-        if (mVideoControlLinstion != null)
-            mVideoControlLinstion.updateProgressBack(duration, position);
     }
 
     private void requestPlayPauseFocus() {
@@ -879,4 +876,14 @@ public class PlaybackControlView extends FrameLayout {
     public SeekBar getProgressBar() {
         return progressBar;
     }
+
+    /**
+     * 设置开始暂停按钮是否可用
+     *
+     * @param playPauseButtonCanUse false:不可用；true：可用
+     */
+    public void setPlayPauseButtonCanUse(boolean playPauseButtonCanUse) {
+        this.playPauseButtonCanUse = playPauseButtonCanUse;
+    }
+
 }

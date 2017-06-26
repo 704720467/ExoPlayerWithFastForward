@@ -32,24 +32,6 @@ public class TrainGradeActivity extends AppCompatActivity {
     int count = 1;
     int spacing=1;
 
-    private Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            // TODO Auto-generated method stub
-            switch (msg.what) {
-                case MSG_DATA_CHANGE:
-                    dynamicLine.refreshView(s);
-                    allTime += spacing;
-                    time.setText(stringForTime(allTime));
-                    break;
-
-                default:
-                    break;
-            }
-            super.handleMessage(msg);
-        }
-    };
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,23 +43,6 @@ public class TrainGradeActivity extends AppCompatActivity {
         time = (TextView) findViewById(R.id.time);
         //动态绘制压力曲线视图
         dynamicLine = (DynamicLine2) this.findViewById(R.id.DynamicLine);
-
-        //新建线程,模拟消息发送，重绘压力曲线
-        new Thread() {
-            public void run() {
-                try {
-                    while (true) {
-                        long dou = 20;
-                        Message message = mHandler.obtainMessage(MSG_DATA_CHANGE);
-                        message.obj = dou;
-                        mHandler.sendMessage(message);
-                        sleep(spacing);
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }.start();
 
     }
 

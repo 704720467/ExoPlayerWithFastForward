@@ -34,19 +34,19 @@ public class DynamicLine extends View {
 
     public DynamicLine(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.icon);
+        bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_flag);
         bitMapWidth = bitmap.getWidth();
     }
 
     public DynamicLine(Context context, AttributeSet attrs) {
         super(context, attrs);
-        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.icon);
+        bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_flag);
         bitMapWidth = bitmap.getWidth();
     }
 
     public DynamicLine(Context context) {
         super(context);
-        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.icon);
+        bitmap = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_flag);
         bitMapWidth = bitmap.getWidth();
     }
 
