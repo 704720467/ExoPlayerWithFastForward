@@ -77,8 +77,8 @@
     </LinearLayout>
 
 
-    <cn.zp.zpexoplayer.view.DynamicLine2
-        android:id="@+id/DynamicLine"
+    <cn.zp.zpexoplayer.view.TagEditDynamicTimeLine
+        android:id="@+id/tagEditDynamicTimeLine"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:layout_below="@+id/player_view"

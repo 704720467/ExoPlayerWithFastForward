@@ -10,7 +10,7 @@ import java.util.Collections;
  */
 
 public class MyTime implements Serializable {
-    static final long serialVersionUID = -1485301123574023028L;
+    static final long serialVersionUID = 1L;
     private ArrayList<MyPoint> myPoints;
     private float time;
     private String timeText;
@@ -55,7 +55,7 @@ public class MyTime implements Serializable {
         Collections.sort(myPoints, tagPointComparator);
         //编号
         for (int i = 0; i < myPoints.size(); i++)
-            myPoints.get(i).setNumber(existTagCount + i + 1);
+            myPoints.get(i).setNumber(existTagCount + 1 + i);
     }
 
 

@@ -1,10 +1,8 @@
 package cn.zp.zpexoplayer.view;
 
-import java.util.ArrayList;
-
+import cn.zp.zpexoplayer.application.MyApplication;
 import cn.zp.zpexoplayer.exoplayer.IMediaPlayer;
 import cn.zp.zpexoplayer.model.MyPoint;
-import cn.zp.zpexoplayer.model.MyTime;
 
 /**
  * 标签编辑控制器
@@ -12,54 +10,90 @@ import cn.zp.zpexoplayer.model.MyTime;
  */
 
 public class TagEditController implements TagEditBottomLinearLayout.ComponentListener {
-    private ArrayList<MyTime> myTimes = new ArrayList<>();
     private TagEditBottomLinearLayout tagEditBottomLinearLayout;
     private IMediaPlayer mediaPlayer;
-    private int currentLabeNumber = 1;
-    private int tagCount;
+    private TagEditDynamicTimeLine tagEditDynamicTimeLine;
+    private MyPoint currentPoint;
+    private int NEXT = 1;//下一个
+    private int LAST = 2;//上一个
+    private int NOW = 3;//当前
 
-    public TagEditController(IMediaPlayer mediaPlayer, TagEditBottomLinearLayout mTagEditBottomLinearLayout, ArrayList<MyTime> myTimes, int tagCount) {
+
+    public TagEditController(IMediaPlayer mediaPlayer, TagEditBottomLinearLayout mTagEditBottomLinearLayout, TagEditDynamicTimeLine tagEditDynamicTimeLine) {
         this.mediaPlayer = mediaPlayer;
+        this.tagEditDynamicTimeLine = tagEditDynamicTimeLine;
         this.tagEditBottomLinearLayout = mTagEditBottomLinearLayout;
-        this.tagCount = tagCount;
-        if (this.tagEditBottomLinearLayout != null)
-            this.tagEditBottomLinearLayout.setTagCount(tagCount);
-        this.myTimes = myTimes;
+        this.tagEditBottomLinearLayout.setComponentListener(this);
+        currentPoint = MyApplication.getTagProject().getMyPointByNumber(1);
+        touchOperation(1, NOW);
+    }
+
+
+    @Override
+    public boolean onTouchLast(int currentTagNumber) {
+        return touchOperation(currentTagNumber, LAST);
+    }
+
+
+    @Override
+    public boolean onTouchNext(int currentTagNumber) {
+        return touchOperation(currentTagNumber, NEXT);
     }
 
     /**
-     * 设置时间列表
-     *
-     * @param myTimes
+     * @param currentTagNumber 当前的选中的标签
+     * @return true：操作成功，false:操作失败
      */
-    public void setMyTimes(ArrayList<MyTime> myTimes) {
-        this.myTimes = myTimes;
+    private boolean touchOperation(int currentTagNumber, int start) {
+        boolean touchState = false;
+        if (mediaPlayer == null)
+            return touchState;
+
+        if (start == NEXT)
+            currentTagNumber++;
+        else if (start == LAST)
+            currentTagNumber--;
+
+        MyPoint point = MyApplication.getTagProject().getMyPointByNumber(currentTagNumber);
+
+        if (point != null && tagEditDynamicTimeLine != null) {
+            touchState = true;
+            currentPoint = point;
+            long time = point.getTrealTime();
+            mediaPlayer.seekTo(time);
+            tagEditDynamicTimeLine.refreshLayout(currentTagNumber, MyApplication.getTagProject().timeToLenght(time));
+        }
+
+        return touchState;
     }
 
-    @Override
-    public void onTouchLast() {
-        if (mediaPlayer == null)
-            return;
 
+    @Override
+    public void onTouchAddLabel(int currentTagNumber) {
 
     }
 
-    @Override
-    public void onTouchNext() {
-        if (mediaPlayer == null)
-            return;
-        for (int i = currentLabeNumber; i < myTimes.size() + 1; i++) {
-            ArrayList<MyPoint> myPints = myTimes.get(i).getMyPoints();
-            if (myPints != null && myPints.size() > 0) {
-                currentLabeNumber++;
-                mediaPlayer.seekTo(myPints.get(0).getTrealTime());
-                break;
-            }
+    /**
+     * 删除当前标签
+     */
+    public void deleteTag() {
+        int curentPointNumber = currentPoint.getNumber();
+        if (MyApplication.getTagProject().getTagCount() > 1) {
+            MyApplication.getTagProject().deleteTag(currentPoint);
+            if (MyApplication.getTagProject().getTagCount() == 1)
+                curentPointNumber = 1;
+            if (touchOperation(curentPointNumber, NOW))
+                tagEditBottomLinearLayout.setCurrentTagNumber(curentPointNumber);
+        } else {
+            //touchOperation(curentPointNumber, true);
         }
     }
 
-    @Override
-    public void onTouchAddLabel() {
+    public MyPoint getCurrentPoint() {
+        return currentPoint;
+    }
 
+    public void setCurrentPoint(MyPoint currentPoint) {
+        this.currentPoint = currentPoint;
     }
 }

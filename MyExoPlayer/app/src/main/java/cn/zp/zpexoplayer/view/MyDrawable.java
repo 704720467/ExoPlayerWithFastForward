@@ -6,7 +6,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
@@ -19,6 +18,7 @@ import java.util.ArrayList;
 import cn.zp.zpexoplayer.R;
 import cn.zp.zpexoplayer.model.MyPoint;
 import cn.zp.zpexoplayer.model.MyTime;
+import cn.zp.zpexoplayer.util.BitMapUtil;
 import cn.zp.zpexoplayer.util.DeviceUtil;
 import cn.zp.zpexoplayer.util.MyLogUtil;
 
@@ -100,9 +100,11 @@ public class MyDrawable extends Drawable {
         textNumberStartY = bannerolStartY + DeviceUtil.dp2px(context, 9);
 
 
-        this.bitmap = zoomImg(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_flag), DeviceUtil.dp2px(context, 18), DeviceUtil.dp2px(context, 60));
+        this.bitmap = BitMapUtil.zoomImg(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_flag),//
+                DeviceUtil.dp2px(context, 18), DeviceUtil.dp2px(context, 60));
         bitMapWidth = this.bitmap.getWidth();
-        verticalLineBt = zoomImg(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_red_line), DeviceUtil.dp2px(context, 1), DeviceUtil.dp2px(context, 60));
+        verticalLineBt = BitMapUtil.zoomImg(BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_red_line), //
+                DeviceUtil.dp2px(context, 1), DeviceUtil.dp2px(context, 60));
     }
 
     public void onTouch(MotionEvent event) {
@@ -164,7 +166,7 @@ public class MyDrawable extends Drawable {
     public void refreshView(int dou) {
         long newTime = System.currentTimeMillis();
         //length = length + dou;
-        //Log.e("===================>", "要刷新的长度为length=" + length + ";步长=" + dou + ";耗时：" + (newTime - oldTime));
+        //Log.i("===================>", "要刷新的长度为length=" + length + ";步长=" + dou + ";耗时：" + (newTime - oldTime));
         oldTime = newTime;
     }
 
@@ -255,28 +257,5 @@ public class MyDrawable extends Drawable {
         } else {
             return PixelFormat.TRANSLUCENT;
         }
-    }
-
-
-    /**
-     * 处理图片
-     *
-     * @param bm        所要转换的bitmap
-     * @param newWidth  新的宽
-     * @param newHeight 新的高
-     * @return 指定宽高的bitmap
-     */
-    public static Bitmap zoomImg(Bitmap bm, int newWidth, int newHeight) {
-        // 获得图片的宽高
-        int width = bm.getWidth();
-        int height = bm.getHeight();
-        // 计算缩放比例
-        float scaleWidth = ((float) newWidth) / width;
-        float scaleHeight = ((float) newHeight) / height;
-        // 取得想要缩放的matrix参数
-        Matrix matrix = new Matrix();
-        matrix.postScale(scaleWidth, scaleHeight);
-        // 得到新的图片
-        return Bitmap.createBitmap(bm, 0, 0, width, height, matrix, true);
     }
 }

@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import cn.zp.zpexoplayer.model.MyPoint;
+import cn.zp.zpexoplayer.application.MyApplication;
 import cn.zp.zpexoplayer.model.MyTime;
 import cn.zp.zpexoplayer.util.AdvancedCountdownTimer;
 import cn.zp.zpexoplayer.util.DeviceUtil;
@@ -27,7 +27,7 @@ import cn.zp.zpexoplayer.util.DeviceUtil;
 public class DynamicLine2 extends View {
     private String TAG = "DynamicLine2";
     private List<Map<String, Integer>> mListPoint = new ArrayList<Map<String, Integer>>();
-    private ArrayList<MyTime> myTimes = new ArrayList<>();
+
     private MyDrawable myDrawable;
     private long mWaitRefreshTime;//等待刷新的时间
     long spacing = 20;
@@ -110,58 +110,43 @@ public class DynamicLine2 extends View {
         mWaitRefreshTime = duration;
         if (mSeekBarLinearLayout != null)
             mSeekBarLinearLayout.setVideoDuration(duration, 0);
-        myTimes.clear();
+        MyApplication.getTagProject().clearTimes();
         for (int i = 0; i * 1000 <= duration; i++) {
             MyTime m = new MyTime(null, (i + 1) * 1000, stringForTime((i + 1) * 1000), timeWidth, helfScreenWidth + (i) * timeWidth);
-            Log.e("添加tga", "i=" + i);
-            myTimes.add(m);
+            Log.i("添加tga", "i=" + i);
+            MyApplication.getTagProject().addTime(m);
         }
-        MyTime lastTime = myTimes.get(myTimes.size() - 1);
+        MyTime lastTime = MyApplication.getTagProject().getLastMyTime();
+        MyApplication.getTagProject().setTimeWidth(timeWidth);
         lastTime.setTime(duration);
         lastTime.setWidth(Math.round(timeWidth * (duration % 1000) / 1000f));
         lastTime.setX(Math.round(timeWidth * duration / 1000f));
-        myDrawable.setMyTimes(myTimes);
+        myDrawable.setMyTimes(MyApplication.getTagProject().getMyTimes());
     }
+
+    /**
+     * 设置时间列表
+     *
+     * @param myTimes
+     */
+    public void setMyTimes(ArrayList<MyTime> myTimes) {
+        myDrawable.setMyTimes(MyApplication.getTagProject().getMyTimes());
+    }
+
 
     /**
      * 添加tag
      *
      * @param tagTime 点击tag的时间
      */
-    private long startTime;
-    private int existTagCount = 0;//已经存在多少个tag了
 
     public synchronized void addTag(long tagTime) {
-        long newTime = System.currentTimeMillis();
-        if (newTime - startTime < 1000)
-            return;
-        startTime = newTime;
-        boolean tagExist = false;
-        for (int i = 0; i < myTimes.size(); i++) {
-            MyTime myTime = myTimes.get(i);
-
-            if (!tagExist && myTime.getTime() >= tagTime) {
-                long relativeTime = tagTime % 1000;
-                float startX = timeWidth * relativeTime / 1000f;
-                Log.e("=====>", "添加tag，i=" + i + ";tagTime=" + tagTime + ";relativeTime=" + relativeTime + ";startX=" + startX);
-                MyPoint myPoint = new MyPoint(tagTime, relativeTime, startX);
-                myTime.setMyPoint(myPoint);
-                tagExist = true;
-            }
-
-            if (myTime.getMyPoints() == null)
-                continue;
-            //对已有的tag进行编号排序
-            myTime.sortAndSetNumber(existTagCount);
-        }
-
+        boolean tagExist = MyApplication.getTagProject().addTag(tagTime, timeWidth);
         if (tagExist) {
-            existTagCount++;
-            final int tagCount = existTagCount;
+            final int tagCount = MyApplication.getTagProject().getTagCount();
             tagView.post(new Runnable() {
                 @Override
                 public void run() {
-                    //Main Thread
                     tagView.setText(String.valueOf(tagCount));
                 }
             });
@@ -204,7 +189,7 @@ public class DynamicLine2 extends View {
                 runIng = true;
                 count = count + stepLength;
                 setmWaitRefreshLength(spacing * count);
-                Log.e("", "要刷新的长度为length=" + length + ";count=" + count + ";耗时：" + (newTime - oldTime));
+                Log.i("", "要刷新的长度为length=" + length + ";count=" + count + ";耗时：" + (newTime - oldTime));
                 oldTime = newTime;
             }
         };
@@ -253,21 +238,5 @@ public class DynamicLine2 extends View {
 
     public void setTagView(TextView tagView) {
         this.tagView = tagView;
-    }
-
-    public ArrayList<MyTime> getMyTimes() {
-        return myTimes;
-    }
-
-    public void setMyTimes(ArrayList<MyTime> myTimes) {
-        this.myTimes = myTimes;
-    }
-
-    public int getExistTagCount() {
-        return existTagCount;
-    }
-
-    public void setExistTagCount(int existTagCount) {
-        this.existTagCount = existTagCount;
     }
 }

@@ -1,14 +1,12 @@
 package cn.zp.zpexoplayer;
 
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.SeekBar;
-import android.widget.TextView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.exoplayer2.ui.PlaybackControlView;
@@ -18,33 +16,26 @@ import java.util.ArrayList;
 
 import cn.zp.zpexoplayer.exoplayer.IMediaPlayer;
 import cn.zp.zpexoplayer.exoplayer.KExoMediaPlayer;
-import cn.zp.zpexoplayer.model.MyTime;
 import cn.zp.zpexoplayer.util.DeviceUtil;
-import cn.zp.zpexoplayer.view.DynamicLine2;
 import cn.zp.zpexoplayer.view.TagEditBottomLinearLayout;
 import cn.zp.zpexoplayer.view.TagEditController;
+import cn.zp.zpexoplayer.view.TagEditDynamicTimeLine;
 import cn.zp.zpexoplayer.view.TopLinearLayout;
 
 public class TagEditActivity extends AppCompatActivity implements TopLinearLayout.TopLinearLayListener, PlaybackControlView.VideoControlLinstion, IMediaPlayer.OnPreparedListener, View.OnClickListener, IMediaPlayer.OnErrorListener, IMediaPlayer.OnCompletionListener {
     private int seekPoint = 0;
     private Settings mSettings;
-    private TextView mTagCount;
 
     private IMediaPlayer mediaPlayer;
     private SimpleExoPlayerView simpleExoPlayerView;
     private ArrayList<Integer> myRandom = new ArrayList<>();
     private TagEditController mTagEditController;
     private TagEditBottomLinearLayout mTagEditBottomLinearLayout;
-
     PlaybackControlView controller;
-    SeekBar seekBar;
-    //进度回调
     private TopLinearLayout topLinearLayout;
-
-    private static final int MSG_DATA_CHANGE = 0x11;
-    private DynamicLine2 dynamicLine;
-    private ArrayList<MyTime> myTimes;
-    private int tagCount;
+    private TagEditDynamicTimeLine tagEditDynamicTimeLine;
+    private LinearLayout deleltTagLay;//删除Tag
+    private LinearLayout adjustmentTagLay;//调整时间
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,40 +44,31 @@ public class TagEditActivity extends AppCompatActivity implements TopLinearLayou
         initData();
         initView();
         switchMediaEngine(null);
-        Intent intent = getIntent();
-        String intentAction = intent.getAction();
-        if (!TextUtils.isEmpty(intentAction))
-            goPlay(null);
+        goPlay(null);
+        mTagEditController = new TagEditController(mediaPlayer, mTagEditBottomLinearLayout, tagEditDynamicTimeLine);
     }
 
     private void initData() {
         if (mSettings == null)
             mSettings = new Settings(this);
-        myTimes = (ArrayList<MyTime>) getIntent().getSerializableExtra("myTags");
-        tagCount = getIntent().getIntExtra("tagCount", 0);
     }
 
     private void initView() {
         topLinearLayout = (TopLinearLayout) findViewById(R.id.my_top_lay);
         topLinearLayout.setTopLinearLayListener(this);
         topLinearLayout.setmTitleText("标签标记");
-        mTagCount = (TextView) findViewById(R.id.tv_tag_count);
-        mTagCount = (TextView) findViewById(R.id.tv_tag_count);
-
-
+        deleltTagLay = (LinearLayout) findViewById(R.id.delelt_tag_lay);
+        deleltTagLay.setOnClickListener(this);
+        adjustmentTagLay = (LinearLayout) findViewById(R.id.adjustment_tag_lay);
+        adjustmentTagLay.setOnClickListener(this);
         simpleExoPlayerView = (SimpleExoPlayerView) findViewById(R.id.player_view);
         ViewGroup.LayoutParams lp = simpleExoPlayerView.getLayoutParams();
         lp.width = DeviceUtil.getScreenWidthSize(this);
         lp.height = DeviceUtil.getPlayerHeightSize(this);
         simpleExoPlayerView.setLayoutParams(lp);
         controller = simpleExoPlayerView.getController();
-        seekBar = controller.getProgressBar();
-        dynamicLine = (DynamicLine2) this.findViewById(R.id.DynamicLine);
-        dynamicLine.setTagView(mTagCount);
-        dynamicLine.setMyTimes(myTimes);
+        tagEditDynamicTimeLine = (TagEditDynamicTimeLine) this.findViewById(R.id.tagEditDynamicTimeLine);
         mTagEditBottomLinearLayout = (TagEditBottomLinearLayout) findViewById(R.id.tag_bottom_lay);
-
-        mTagEditController = new TagEditController(mediaPlayer, mTagEditBottomLinearLayout, myTimes, tagCount);
     }
 
     @Override
@@ -110,6 +92,11 @@ public class TagEditActivity extends AppCompatActivity implements TopLinearLayou
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.delelt_tag_lay:
+                mTagEditController.deleteTag();
+                break;
+            case R.id.adjustment_tag_lay:
+                break;
         }
     }
 
@@ -133,13 +120,10 @@ public class TagEditActivity extends AppCompatActivity implements TopLinearLayou
     public void switchMediaEngine(View v) {
         if (mediaPlayer != null)
             mediaPlayer.stop();
-
         mediaPlayer = new KExoMediaPlayer(this, simpleExoPlayerView, this);
-
         mediaPlayer.setOnPreparedListener(this);
         mediaPlayer.setOnErrorListener(this);
         mediaPlayer.setOnCompletionListener(this);
-        ((KExoMediaPlayer) mediaPlayer).setDynamicLine2(dynamicLine);
     }
 
 

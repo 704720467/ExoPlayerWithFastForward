@@ -8,6 +8,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import cn.zp.zpexoplayer.R;
+import cn.zp.zpexoplayer.application.MyApplication;
 
 /**
  * 编辑标签底部布局
@@ -23,21 +24,29 @@ public class TagEditBottomLinearLayout extends LinearLayout implements View.OnCl
     private TextView mNextTv;
     private ComponentListener mComponentListener;
     private int tagCount;
-    private int currentTagCount=1;
+    private int currentTagNumber = 1;//当前选中的标签的编号
 
     public TagEditBottomLinearLayout(Context context) {
         super(context);
+        initData();
         initView();
     }
 
+
     public TagEditBottomLinearLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
+        initData();
         initView();
     }
 
     public TagEditBottomLinearLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        initData();
         initView();
+    }
+
+    private void initData() {
+        tagCount = MyApplication.getTagProject().getTagCount();
     }
 
     private void initView() {
@@ -52,7 +61,28 @@ public class TagEditBottomLinearLayout extends LinearLayout implements View.OnCl
         mMiddleLayout.setOnClickListener(this);
         mLastTv = (TextView) mView.findViewById(R.id.last_tv);
         mNextTv = (TextView) mView.findViewById(R.id.next_tv);
+        changeViewState();
         addView(mView);
+    }
+
+    /**
+     * 修改View的状态
+     */
+    private void changeViewState() {
+        int lastState = View.INVISIBLE;
+        int nextState = View.INVISIBLE;
+        if (currentTagNumber > 1)
+            lastState = View.VISIBLE;
+        if (currentTagNumber < tagCount)
+            nextState = View.VISIBLE;
+        if (mLastLayout != null)
+            mLastLayout.setVisibility(lastState);
+        if (mNextLayout != null)
+            mNextLayout.setVisibility(nextState);
+        if (mLastTv != null)
+            mLastTv.setText(currentTagNumber - 1 + "");
+        if (mNextTv != null)
+            mNextTv.setText(currentTagNumber + 1 + "");
     }
 
 
@@ -65,26 +95,37 @@ public class TagEditBottomLinearLayout extends LinearLayout implements View.OnCl
     public void onClick(View v) {
         if (mComponentListener == null)
             return;
+        boolean touBack = false;
         switch (v.getId()) {
             case R.id.last_lay:
-                mComponentListener.onTouchLast();
+                touBack = mComponentListener.onTouchLast(currentTagNumber);
+                if (touBack)
+                    currentTagNumber--;
                 break;
             case R.id.next_lay:
-                mComponentListener.onTouchNext();
+                touBack = mComponentListener.onTouchNext(currentTagNumber);
+                if (touBack)
+                    currentTagNumber++;
                 break;
             case R.id.middle_lay:
-                mComponentListener.onTouchAddLabel();
+                mComponentListener.onTouchAddLabel(currentTagNumber);
                 break;
         }
+
+        if (!touBack)
+            return;
+        changeViewState();
     }
 
-
-    public void setTagCount(int tagCount) {
-        this.tagCount = tagCount;
-    }
-
-    public void setCurrentTagCount(int currentTagCount) {
-        this.currentTagCount = currentTagCount;
+    /**
+     * 修改当前的标签的号码
+     *
+     * @param currentTagNumber
+     */
+    public void setCurrentTagNumber(int currentTagNumber) {
+        this.currentTagNumber = currentTagNumber;
+        tagCount = MyApplication.getTagProject().getTagCount();
+        changeViewState();
     }
 
     /**
@@ -94,17 +135,17 @@ public class TagEditBottomLinearLayout extends LinearLayout implements View.OnCl
         /**
          * 上一个标签
          */
-        void onTouchLast();
+        boolean onTouchLast(int currentTagNumber);
 
         /**
          * 下一个标签
          */
-        void onTouchNext();
+        boolean onTouchNext(int currentTagNumber);
 
         /**
          * 添加标签
          */
-        void onTouchAddLabel();
+        void onTouchAddLabel(int currentTagNumber);
     }
 
 }

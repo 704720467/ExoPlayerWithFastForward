@@ -7,7 +7,7 @@ import java.io.Serializable;
  */
 
 public class MyPoint implements Serializable {
-    static final long serialVersionUID = -1485301123574023028L;
+    static final long serialVersionUID = 1L;
     private long trealTime;//实际时间，在整个视频中的时间（单位毫秒）
     private long relativeTime;//在一秒内的时间(单位毫秒)
     private float startX;//绘制的时候开始的位置

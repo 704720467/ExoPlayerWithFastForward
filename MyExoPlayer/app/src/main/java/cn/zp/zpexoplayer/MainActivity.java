@@ -20,6 +20,7 @@ import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import java.util.ArrayList;
 import java.util.Random;
 
+import cn.zp.zpexoplayer.application.MyApplication;
 import cn.zp.zpexoplayer.exoplayer.IMediaPlayer;
 import cn.zp.zpexoplayer.exoplayer.KExoMediaPlayer;
 import cn.zp.zpexoplayer.util.DeviceUtil;
@@ -117,6 +118,8 @@ public class MainActivity extends AppCompatActivity implements SeekBarLinearLayo
             lp.height = DeviceUtil.getPlayerHeightSize(this);
             simpleExoPlayerView.setLayoutParams(lp);
         }
+        if (mTagCount != null)
+            mTagCount.setText(MyApplication.getTagProject().getTagCount() + "");
     }
 
     @Override
@@ -124,6 +127,7 @@ public class MainActivity extends AppCompatActivity implements SeekBarLinearLayo
         super.onPause();
         if (mediaPlayer != null && mediaPlayer.isPlaying())
             mediaPlayer.stop();
+
     }
 
     @Override
@@ -280,7 +284,7 @@ public class MainActivity extends AppCompatActivity implements SeekBarLinearLayo
     @Override
     public void onProgressChanged(long currtentProgress) {
         long dou = currtentProgress - oldProgress;
-        Log.e("===================>", "拖动跳转到currtentProgress=" + currtentProgress + "；oldProgress=" + oldProgress + ";dou=" + dou);
+        Log.i("===================>", "拖动跳转到currtentProgress=" + currtentProgress + "；oldProgress=" + oldProgress + ";dou=" + dou);
         oldProgress = currtentProgress;
     }
 
@@ -289,7 +293,7 @@ public class MainActivity extends AppCompatActivity implements SeekBarLinearLayo
         for (int i = 0; i < 1000; i++) {
             int time = random.nextInt(seekBar.getMax());
             myRandom.add(time);
-            Log.e("===================>", "添加seek到：i=" + i + "；；时间为=" + time + ";z最大时间=" + seekBar.getMax());
+            Log.i("===================>", "添加seek到：i=" + i + "；；时间为=" + time + ";z最大时间=" + seekBar.getMax());
         }
     }
 
@@ -324,8 +328,6 @@ public class MainActivity extends AppCompatActivity implements SeekBarLinearLayo
     public void onTouchRightButton() {
         //        Toast.makeText(this, "下个界面", Toast.LENGTH_LONG).show();
         Intent intent = new Intent(this, TagEditActivity.class);
-        intent.putExtra("myTags", dynamicLine.getMyTimes());
-        intent.putExtra("tagCount", dynamicLine.getExistTagCount());
         startActivity(intent);
     }
 
