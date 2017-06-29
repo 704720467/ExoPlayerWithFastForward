@@ -80,8 +80,15 @@ public class KExoMediaPlayer extends AbstractMediaPlayer {
     private Surface surface;
     private PlaybackControlView mController;
     private DynamicLine2 dynamicLine2;
+    private PlaybackControlView.VideoControlLinstion videoControlLinstion;
 
-    public KExoMediaPlayer(Context context, SimpleExoPlayerView simpleExoPlayerView, PlaybackControlView.VideoControlLinstion mVideoControlLinstion) {
+
+    public KExoMediaPlayer(Context context, SimpleExoPlayerView simpleExoPlayerView, PlaybackControlView.VideoControlLinstion videoControlLinstion) {
+        this(context, simpleExoPlayerView);
+        setVideoControlLinstion(videoControlLinstion);
+    }
+
+    public KExoMediaPlayer(Context context, SimpleExoPlayerView simpleExoPlayerView) {
         this.context = context.getApplicationContext();
 
         // =========@Init@=========
@@ -100,7 +107,7 @@ public class KExoMediaPlayer extends AbstractMediaPlayer {
         simpleExoPlayerView.setPlayer(player);
         mController = simpleExoPlayerView.getController();
         simpleExoPlayerView.setUseController(true);
-        mController.setVideoControlLinstion(mVideoControlLinstion);
+
 
         mainHandler = new Handler();
         userAgent = Util.getUserAgent(this.context, "KExoMediaPlayer");
@@ -110,6 +117,12 @@ public class KExoMediaPlayer extends AbstractMediaPlayer {
 
     public void setDynamicLine2(DynamicLine2 dynamicLine2) {
         this.dynamicLine2 = dynamicLine2;
+    }
+
+    public void setVideoControlLinstion(PlaybackControlView.VideoControlLinstion videoControlLinstion) {
+        this.videoControlLinstion = videoControlLinstion;
+        if (mController != null)
+            mController.setVideoControlLinstion(videoControlLinstion);
     }
 
     // ============================@Source@============================
@@ -249,6 +262,7 @@ public class KExoMediaPlayer extends AbstractMediaPlayer {
             player = null;
             eventLogger = null;
             playerListener = null;
+            videoControlLinstion = null;
         }
     }
 

@@ -118,6 +118,7 @@ public class DynamicLine2 extends View {
         }
         MyTime lastTime = MyApplication.getTagProject().getLastMyTime();
         MyApplication.getTagProject().setTimeWidth(timeWidth);
+        MyApplication.getTagProject().setDraution(duration);
         lastTime.setTime(duration);
         lastTime.setWidth(Math.round(timeWidth * (duration % 1000) / 1000f));
         lastTime.setX(Math.round(timeWidth * duration / 1000f));

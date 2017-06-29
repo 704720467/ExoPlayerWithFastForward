@@ -170,6 +170,8 @@ public class TagEditDynamicTimeLine extends View {
         if (myPoints == null || myPoints.size() == 0)
             return;
         for (MyPoint point : myPoints) {
+            if (point.isDelete())
+                continue;
             int startX = Math.round(myTime.getNowX() - length + point.getStartX());
             int number = point.getNumber();
             int bitMapWidth = 0;

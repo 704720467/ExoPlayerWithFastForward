@@ -1,5 +1,6 @@
 package cn.zp.zpexoplayer.model;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.io.Serializable;
@@ -18,6 +19,7 @@ public class TagProject implements Serializable {
     private ArrayList<MyTime> myTimes = new ArrayList<>();
     private int tagCount;
     private int timeWidth;
+    private long draution;//视频的总长度
 
     public ArrayList<MyTime> getMyTimes() {
         return myTimes;
@@ -39,6 +41,14 @@ public class TagProject implements Serializable {
      */
     public void setTimeWidth(int timeWidth) {
         this.timeWidth = timeWidth;
+    }
+
+    public long getDraution() {
+        return draution;
+    }
+
+    public void setDraution(long draution) {
+        this.draution = draution;
     }
 
     public int getTagCount() {
@@ -118,7 +128,7 @@ public class TagProject implements Serializable {
             //判断是否存在tag
             ArrayList<MyPoint> myPints = getMyTimeByPosition(i).getMyPoints();
             if (myPints != null && myPints.size() > 0)
-                if (myPints.get(0).getNumber() == number) {
+                if (!myPints.get(0).isDelete() && myPints.get(0).getNumber() == number) {
                     myPoint = myPints.get(0);
                     break;
                 }
@@ -135,7 +145,6 @@ public class TagProject implements Serializable {
      */
     public boolean addTag(long tagTime, int aSecondLength) {
         boolean addScuress = false;
-        boolean canAdd = true;
 
         int existTagCount = 0;//已经存在多少个tag了
         for (int i = 0; i < myTimes.size(); i++) {
@@ -143,10 +152,7 @@ public class TagProject implements Serializable {
             if (!addScuress && myTime.getTime() >= tagTime) {
                 if (!checkCanAddTag(i, tagTime))
                     break;
-                long relativeTime = tagTime % 1000;
-                float startX = aSecondLength * relativeTime / 1000f;
-                MyPoint myPoint = new MyPoint(tagTime, relativeTime, startX);
-                myTime.setMyPoint(myPoint);
+                myTime.setMyPoint(createMyPotin(tagTime, aSecondLength));
                 addScuress = true;
             }
 
@@ -158,6 +164,32 @@ public class TagProject implements Serializable {
         }
         tagCount = existTagCount;
         return addScuress;
+    }
+
+    /**
+     * 创建一个tag点
+     *
+     * @param tagTime       打点的时间
+     * @param aSecondLength 单位长度
+     * @return
+     */
+    @NonNull
+    private MyPoint createMyPotin(long tagTime, int aSecondLength) {
+        long relativeTime = tagTime % 1000;
+        float startX = aSecondLength * relativeTime / 1000f;
+        long playStartTime = 0;
+        long playEndTime = 0;
+        if (tagTime < 7 * 1000) {
+            playStartTime = 0;
+            playEndTime = 10 * 1000;
+        } else if (tagTime + 3 * 1000 > draution) {
+            playStartTime = draution - 10 * 1000;
+            playEndTime = draution;
+        } else {
+            playStartTime = tagTime - 7 * 1000;
+            playEndTime = tagTime + 3 * 1000;
+        }
+        return new MyPoint(tagTime, relativeTime, startX, playStartTime, playEndTime);
     }
 
     /**
@@ -213,9 +245,9 @@ public class TagProject implements Serializable {
             for (int i = 0; i < myTimes.size(); i++) {
                 MyTime myTime = getMyTimeByPosition(i);
                 ArrayList<MyPoint> myPints = myTime.getMyPoints();
-                if (myPints != null && myPints.size() > 0) {
-                    if (myPints.get(0).getNumber() == deleteMyPoint.getNumber()) {
-                        myPints.clear();
+                if (myPints != null && myPints.size() > 0 && !myPints.get(0).isDelete()) {
+                    if ((myPints.get(0).getNumber() == deleteMyPoint.getNumber())) {
+                        myPints.get(0).setDelete(true);
                         tagCount--;
                         deleteState = true;
                     } else {
@@ -229,6 +261,32 @@ public class TagProject implements Serializable {
         }
         return deleteState;
     }
+
+
+    /**
+     * 找回删除的TAG，并排好顺序
+     *
+     * @return
+     */
+    public void reBackdeleteTag() {
+        int nowTagPointCount = 0;
+        try {
+            for (int i = 0; i < myTimes.size(); i++) {
+                MyTime myTime = getMyTimeByPosition(i);
+                ArrayList<MyPoint> myPints = myTime.getMyPoints();
+                if (myPints != null && myPints.size() > 0) {
+                    if (myPints.get(0).isDelete())
+                        myPints.get(0).setDelete(false);
+                    nowTagPointCount++;
+                    myPints.get(0).setNumber(nowTagPointCount);
+                }
+            }
+            tagCount = nowTagPointCount;
+        } catch (Exception e) {
+            Log.e("TagProject", "找回删除的TAG报错：" + e.getMessage());
+        }
+    }
+
 
     public long timeToLenght(long time) {
         return Math.round(timeWidth * time / 1000f);

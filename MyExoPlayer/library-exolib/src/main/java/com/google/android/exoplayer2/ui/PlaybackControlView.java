@@ -541,8 +541,8 @@ public class PlaybackControlView extends FrameLayout {
         long duration = player == null ? 0 : player.getDuration();
         long position = player == null ? 0 : player.getCurrentPosition();
         // 更新外面控制栏的进度
-        //        if (mVideoControlLinstion != null)
-        //            mVideoControlLinstion.updateProgressBack(duration, position);
+        if (mVideoControlLinstion != null)
+            mVideoControlLinstion.updateProgressBack(duration, position);
         //更新本控制栏进度
         if (isVisible()) {
             if (durationView != null) {

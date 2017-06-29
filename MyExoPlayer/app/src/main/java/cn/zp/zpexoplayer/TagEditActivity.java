@@ -1,6 +1,5 @@
 package cn.zp.zpexoplayer;
 
-import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -22,7 +21,7 @@ import cn.zp.zpexoplayer.view.TagEditController;
 import cn.zp.zpexoplayer.view.TagEditDynamicTimeLine;
 import cn.zp.zpexoplayer.view.TopLinearLayout;
 
-public class TagEditActivity extends AppCompatActivity implements TopLinearLayout.TopLinearLayListener, PlaybackControlView.VideoControlLinstion, IMediaPlayer.OnPreparedListener, View.OnClickListener, IMediaPlayer.OnErrorListener, IMediaPlayer.OnCompletionListener {
+public class TagEditActivity extends AppCompatActivity implements TopLinearLayout.TopLinearLayListener, IMediaPlayer.OnPreparedListener, View.OnClickListener, IMediaPlayer.OnErrorListener, IMediaPlayer.OnCompletionListener {
     private int seekPoint = 0;
     private Settings mSettings;
 
@@ -120,7 +119,7 @@ public class TagEditActivity extends AppCompatActivity implements TopLinearLayou
     public void switchMediaEngine(View v) {
         if (mediaPlayer != null)
             mediaPlayer.stop();
-        mediaPlayer = new KExoMediaPlayer(this, simpleExoPlayerView, this);
+        mediaPlayer = new KExoMediaPlayer(this, simpleExoPlayerView);
         mediaPlayer.setOnPreparedListener(this);
         mediaPlayer.setOnErrorListener(this);
         mediaPlayer.setOnCompletionListener(this);
@@ -161,24 +160,6 @@ public class TagEditActivity extends AppCompatActivity implements TopLinearLayou
         }
     }
 
-
-    @Override
-    public boolean updateProgressBack(long duration, long currentPosition) {
-        //dynamicLine.setmWaitRefreshLength(currentPosition);
-        return false;
-    }
-
-    @Override
-    public void fullScreen() {
-        setRequestedOrientation((getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) ? //
-                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT ://
-                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);//强制为横屏
-    }
-
-    @Override
-    public void onProgressChanged(long currtentProgress) {
-    }
-
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
@@ -195,6 +176,7 @@ public class TagEditActivity extends AppCompatActivity implements TopLinearLayou
 
     @Override
     public void onTouchBackButton() {
+        mTagEditController.reBackdeleteTag();
         finish();
     }
 
@@ -203,4 +185,12 @@ public class TagEditActivity extends AppCompatActivity implements TopLinearLayou
         Toast.makeText(this, "提交数据", Toast.LENGTH_LONG).show();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer.stop();
+        }
+    }
 }

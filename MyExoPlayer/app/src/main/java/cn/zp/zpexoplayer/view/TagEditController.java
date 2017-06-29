@@ -1,7 +1,10 @@
 package cn.zp.zpexoplayer.view;
 
+import com.google.android.exoplayer2.ui.PlaybackControlView;
+
 import cn.zp.zpexoplayer.application.MyApplication;
 import cn.zp.zpexoplayer.exoplayer.IMediaPlayer;
+import cn.zp.zpexoplayer.exoplayer.KExoMediaPlayer;
 import cn.zp.zpexoplayer.model.MyPoint;
 
 /**
@@ -9,7 +12,7 @@ import cn.zp.zpexoplayer.model.MyPoint;
  * Created by zp on 2017/6/26.
  */
 
-public class TagEditController implements TagEditBottomLinearLayout.ComponentListener {
+public class TagEditController implements TagEditBottomLinearLayout.ComponentListener, PlaybackControlView.VideoControlLinstion {
     private TagEditBottomLinearLayout tagEditBottomLinearLayout;
     private IMediaPlayer mediaPlayer;
     private TagEditDynamicTimeLine tagEditDynamicTimeLine;
@@ -24,6 +27,7 @@ public class TagEditController implements TagEditBottomLinearLayout.ComponentLis
         this.tagEditDynamicTimeLine = tagEditDynamicTimeLine;
         this.tagEditBottomLinearLayout = mTagEditBottomLinearLayout;
         this.tagEditBottomLinearLayout.setComponentListener(this);
+        ((KExoMediaPlayer) this.mediaPlayer).setVideoControlLinstion(this);
         currentPoint = MyApplication.getTagProject().getMyPointByNumber(1);
         touchOperation(1, NOW);
     }
@@ -60,11 +64,24 @@ public class TagEditController implements TagEditBottomLinearLayout.ComponentLis
             touchState = true;
             currentPoint = point;
             long time = point.getTrealTime();
-            mediaPlayer.seekTo(time);
+            seekAndPlay();
             tagEditDynamicTimeLine.refreshLayout(currentTagNumber, MyApplication.getTagProject().timeToLenght(time));
         }
 
         return touchState;
+    }
+
+    /**
+     * 跳转到指定的位置并且播放，无限循环
+     *
+     * @return
+     */
+    private void seekAndPlay() {
+        if (currentPoint == null)
+            return;
+        mediaPlayer.seekTo(currentPoint.getPlayStartTime());
+        if (!mediaPlayer.isPlaying())
+            mediaPlayer.start();
     }
 
 
@@ -79,14 +96,28 @@ public class TagEditController implements TagEditBottomLinearLayout.ComponentLis
     public void deleteTag() {
         int curentPointNumber = currentPoint.getNumber();
         if (MyApplication.getTagProject().getTagCount() > 1) {
+
             MyApplication.getTagProject().deleteTag(currentPoint);
+
             if (MyApplication.getTagProject().getTagCount() == 1)
                 curentPointNumber = 1;
+
+            if (curentPointNumber > MyApplication.getTagProject().getTagCount())
+                curentPointNumber = MyApplication.getTagProject().getTagCount();
+
             if (touchOperation(curentPointNumber, NOW))
                 tagEditBottomLinearLayout.setCurrentTagNumber(curentPointNumber);
+
         } else {
             //touchOperation(curentPointNumber, true);
         }
+    }
+
+    /**
+     * 找回删除的tag
+     */
+    public void reBackdeleteTag() {
+        MyApplication.getTagProject().reBackdeleteTag();
     }
 
     public MyPoint getCurrentPoint() {
@@ -95,5 +126,24 @@ public class TagEditController implements TagEditBottomLinearLayout.ComponentLis
 
     public void setCurrentPoint(MyPoint currentPoint) {
         this.currentPoint = currentPoint;
+    }
+
+
+    @Override
+    public boolean updateProgressBack(long duration, long currentPosition) {
+        if (currentPoint != null && currentPosition >= currentPoint.getPleyEndTime())
+            seekAndPlay();
+        return false;
+    }
+
+    @Override
+    public void fullScreen() {
+        //        setRequestedOrientation((getRequestedOrientation() == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) ? //
+        //                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT ://
+        //                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);//强制为横屏
+    }
+
+    @Override
+    public void onProgressChanged(long currtentProgress) {
     }
 }
