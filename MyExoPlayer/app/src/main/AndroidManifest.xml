@@ -21,7 +21,6 @@
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-
         </activity>
         <activity
             android:name=".exoplayer.FileExplorerActivity"
@@ -30,12 +29,17 @@
         <activity android:name=".AChartActivity">
         </activity>
         <activity android:name=".TrainGradeActivity">
-
         </activity>
         <activity android:name=".ListViewActivity">
+
         </activity>
         <activity
             android:name=".TagEditActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
+        <activity
+            android:name=".SelectTagActivity"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
 
         </activity>

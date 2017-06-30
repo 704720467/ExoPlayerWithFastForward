@@ -85,16 +85,41 @@
         android:background="@color/white"/>
 
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/mseebar"
         android:layout_below="@+id/DynamicLine"
         android:layout_weight="1"
-        android:background="@color/gray"
-        android:orientation="horizontal">
+        android:background="@color/white"
+        android:fadeScrollbars="false"
+        android:fadingEdge="vertical"
+        android:scrollbarSize="2dp"
+        android:scrollbarStyle="outsideOverlay"
+        android:scrollbarThumbVertical="@color/scroll_thome_color"
+        android:scrollbars="vertical">
 
-    </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="15dp"
+            android:paddingTop="5dp">
+
+            <cn.zp.zpexoplayer.view.FlowRadioGroup
+                android:id="@+id/tage_radiogroup"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical">
+            </cn.zp.zpexoplayer.view.FlowRadioGroup>
+        </LinearLayout>
+    </ScrollView>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/gray"/>
 
     <cn.zp.zpexoplayer.view.TagEditBottomLinearLayout
         android:id="@+id/tag_bottom_lay"

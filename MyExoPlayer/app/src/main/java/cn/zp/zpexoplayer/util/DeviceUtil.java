@@ -24,6 +24,19 @@ public class DeviceUtil {
 
     /**
      * 获取屏幕高单位是像素
+     *
+     * @param context
+     * @return
+     */
+    public static int getScreenHeightSize(Context context) {
+        DisplayMetrics dm = new DisplayMetrics();
+        dm = context.getResources().getDisplayMetrics();
+        return dm.heightPixels;
+    }
+
+
+    /**
+     * 获取屏幕高单位是像素
      * <p>
      * 高根据宽以16:9算出来的
      *

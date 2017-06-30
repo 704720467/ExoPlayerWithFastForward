@@ -6,4 +6,8 @@
     <color name="gray">#ebebeb</color>
     <color name="white">#ffffff</color>
     <color name="black">#333333</color>
+    <color name="scroll_thome_color">#FFC000</color>
+    <color name="light_grey">#999999</color>
+    <color name="orange">#FFC001</color>
+    <color name="red">#FB5F2E</color>
 </resources>

@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="80dp"
                 android:layout_height="75dp"
+                android:background="@color/gray"
                 android:gravity="bottom"
                 android:orientation="horizontal">
 
@@ -18,11 +19,13 @@
         android:orientation="vertical">
 
         <ImageView
+            android:id="@+id/img_type"
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:src="@mipmap/ic_type_player"/>
 
         <TextView
+            android:id="@+id/tv_type_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"

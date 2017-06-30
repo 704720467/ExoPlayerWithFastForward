@@ -1,4 +1,4 @@
-package cn.zp.zpexoplayer;
+package cn.zp.zpexoplayer.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -10,6 +10,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import cn.zp.zpexoplayer.R;
 
 /**
  * 过场适配器
@@ -53,7 +55,7 @@ public class TransitionAdapter extends RecyclerView.Adapter<TransitionAdapter.Vi
 
         viewHolder.itemView.setTag(position);
         viewHolder.mTxt.setText(mDatas.get(position));
-//        viewHolder.mTxt.setText(position+"");
+        //        viewHolder.mTxt.setText(position+"");
         //viewHolder.mTxt.setTextColor(Color.parseColor(selectPosition == position ? "#ee5514" : "#999999"));
     }
 
@@ -61,6 +63,7 @@ public class TransitionAdapter extends RecyclerView.Adapter<TransitionAdapter.Vi
         public ViewHolder(View arg0) {
             super(arg0);
         }
+
         TextView mTxt;
     }
 
@@ -92,24 +95,6 @@ public class TransitionAdapter extends RecyclerView.Adapter<TransitionAdapter.Vi
         notifyItemChanged(selectPosition);
     }
 
-    /**
-     * 设置选中的过场
-     */
-    public void setSelectPosition(int transitionType) {
-        int newPosition = 0;
-        switch (transitionType) {
-            case 0://无, 过场不改变时间
-                newPosition = 0;
-                break;
-            case 1://渐变, 两端视频叠化出现。时间缩短
-                newPosition = 1;
-                break;
-            case 2://淡入淡出。渐变, 过场不改变时间。变暗然后再变回正常
-                newPosition = 2;
-                break;
-        }
-        changSelectState(newPosition);
-    }
 
     public interface MyItemClickListener {
         public void onTransitionItemClick(View view, int postion);

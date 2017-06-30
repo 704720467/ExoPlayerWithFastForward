@@ -1,94 +1,110 @@
 package cn.zp.zpexoplayer;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
-import android.widget.ListView;
+import android.widget.TextView;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.zp.zpexoplayer.adapter.LeftAdapter;
 import cn.zp.zpexoplayer.adapter.RightAdapter;
+import cn.zp.zpexoplayer.adapter.TagTypeAdapter;
 import cn.zp.zpexoplayer.model.MyTag;
 import cn.zp.zpexoplayer.model.TagType;
+import cn.zp.zpexoplayer.util.DeviceUtil;
 import cn.zp.zpexoplayer.view.HaveHeaderListView;
 
 import static cn.zp.zpexoplayer.model.TagType.EnumTagType.PLAYER;
 import static cn.zp.zpexoplayer.model.TagType.EnumTagType.TACTICS;
 import static cn.zp.zpexoplayer.model.TagType.EnumTagType.TECHNOLOGY;
 
-public class ListViewActivity extends AppCompatActivity {
+public class SelectTagActivity extends AppCompatActivity implements View.OnClickListener {
+    private String TAG = "SelectTagActivity";
+    private RecyclerView tagTypeRv;
+    private TagTypeAdapter tagTypeAdapter;
 
-    //左边的ListView
-    private ListView lv_left;
-    //左边ListView的Adapter
-    private LeftAdapter leftAdapter;
-    //左边的数据存储
-
-    private ArrayList<TagType> leftStr;
-
-    //右边的数据存储
-    private List<List<MyTag>> rightStr;
-    //左边数据的标志
-    private List<Boolean> flagArray;
-    //右边的ListView
-    private HaveHeaderListView lv_right;
+    private HaveHeaderListView tagTypeContRv;
     //右边的ListView的Adapter
     private RightAdapter rightAdapter;
+    private ArrayList<TagType> leftStr;
+    //右边的数据存储
+    private List<List<MyTag>> rightStr;
+    private List<List<MyTag>> selectTags;
+    private int currentType = 0;
     //是否滑动标志位
     private Boolean isScroll = false;
+    private TextView selectTagCount;
+    private int selectTagCountNumber = 0;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list_view);
-        //初始化控件
+        setContentView(R.layout.activity_select_tag);
+
+        Window window = getWindow();
+        window.setGravity(Gravity.BOTTOM);
+
+        WindowManager.LayoutParams lp = window.getAttributes();
+        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+        lp.height = DeviceUtil.getScreenHeightSize(this) * 2 / 3;
+        lp.windowAnimations = R.style.buttomdialogAnim;
+        window.setAttributes(lp);
+
+
         initView();
-        //初始化数据
         initData();
-        lv_left.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        tagTypeAdapter.setOnItemClickListener(new TagTypeAdapter.MyItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public void onTransitionItemClick(View view, int postion) {
                 isScroll = false;
-                for (int i = 0; i < leftStr.size(); i++) {
-                    if (i == position) {
-                        flagArray.set(i, true);
-                    } else {
-                        flagArray.set(i, false);
-                    }
-                }
-                //更新
-                leftAdapter.notifyDataSetChanged();
                 int rightSection = 0;
-                for (int i = 0; i < position; i++) {
+                for (int i = 0; i < postion; i++) {
                     //查找
                     rightSection += rightAdapter.getCountForSection(i) + 1;
                 }
                 //显示到rightSection所代表的标题
-                lv_right.setSelection(rightSection);
+                tagTypeContRv.setSelection(rightSection);
             }
         });
-        lv_right.setOnScrollListener(new AbsListView.OnScrollListener() {
+
+        rightAdapter.setOnItemClickListener(new RightAdapter.MyItemClickListener() {
+            @Override
+            public void onTransitionItemClick(View view, int section, int postion, boolean isPlus) {
+                leftStr.get(section).setSelectCount(leftStr.get(section).getSelectCount() + (isPlus ? (1) : (-1)));
+                tagTypeAdapter.changSelectState(section);
+                selectTags.get(section).add(rightStr.get(section).get(postion));
+                selectTagCountNumber += (isPlus ? (1) : (-1));
+                selectTagCount.setText(selectTagCountNumber + "");
+            }
+        });
+
+        tagTypeContRv.setOnScrollListener(new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
                 switch (scrollState) {
                     // 当不滚动时
                     case AbsListView.OnScrollListener.SCROLL_STATE_IDLE:
                         // 判断滚动到底部
-                        if (lv_right.getLastVisiblePosition() == (lv_right.getCount() - 1)) {
-                            lv_left.setSelection(ListView.FOCUS_DOWN);
+                        if (tagTypeContRv.getLastVisiblePosition() == (tagTypeContRv.getCount() - 1)) {
+                            tagTypeRv.scrollToPosition(tagTypeContRv.getCount() - 1);
                         }
                         // 判断滚动到顶部
-                        if (lv_right.getFirstVisiblePosition() == 0) {
-                            lv_left.setSelection(0);
+                        if (tagTypeContRv.getFirstVisiblePosition() == 0) {
+                            tagTypeRv.scrollToPosition(0);
                         }
                         break;
                 }
-
             }
 
             int y = 0;
@@ -97,20 +113,7 @@ public class ListViewActivity extends AppCompatActivity {
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
                 if (isScroll) {
-                    for (int i = 0; i < rightStr.size(); i++) {
-                        if (i == rightAdapter.getSectionForPosition(lv_right.getFirstVisiblePosition())) {
-                            flagArray.set(i, true);
-                            //获取当前标题的标志位
-                            x = i;
-                        } else {
-                            flagArray.set(i, false);
-                        }
-                    }
-                    if (x != y) {
-                        leftAdapter.notifyDataSetChanged();
-                        //将之前的标志位赋值给y，下次判断
-                        y = x;
-                    }
+                    findFristItem(firstVisibleItem);
                 } else {
                     isScroll = true;
                 }
@@ -118,20 +121,32 @@ public class ListViewActivity extends AppCompatActivity {
         });
     }
 
+    private void initView() {
+        selectTags = new ArrayList<List<MyTag>>();
+        selectTags.add(new ArrayList<MyTag>());
+        selectTags.add(new ArrayList<MyTag>());
+        selectTags.add(new ArrayList<MyTag>());
+        rightStr = new ArrayList<List<MyTag>>();
+        leftStr = new ArrayList<>();
+        findViewById(R.id.tv_cancle).setOnClickListener(this);
+        findViewById(R.id.bt_commit).setOnClickListener(this);
+        selectTagCount = (TextView) findViewById(R.id.select_tag_count);
+        tagTypeRv = (RecyclerView) findViewById(R.id.tag_type_list_view);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        tagTypeRv.setLayoutManager(linearLayoutManager);
+        tagTypeAdapter = new TagTypeAdapter(this, leftStr);
+        tagTypeRv.setAdapter(tagTypeAdapter);
+        tagTypeContRv = (HaveHeaderListView) findViewById(R.id.content_list_view);
+        rightAdapter = new RightAdapter(SelectTagActivity.this, leftStr, rightStr);
+        tagTypeContRv.setAdapter(rightAdapter);
+    }
+
     private void initData() {
-        //左边相关数据
-        flagArray.add(true);
-        flagArray.add(false);
-        flagArray.add(false);
-        flagArray.add(false);
-        flagArray.add(false);
-        flagArray.add(false);
-        flagArray.add(false);
-        flagArray.add(false);
         leftStr.add(new TagType(PLAYER, "球员类"));
         leftStr.add(new TagType(TECHNOLOGY, "技术类"));
         leftStr.add(new TagType(TACTICS, "战术类"));
-        leftAdapter.notifyDataSetChanged();
+        tagTypeAdapter.notifyDataSetChanged();
         //右边相关数据
         //面食类
         List<MyTag> food1 = new ArrayList<>();
@@ -191,18 +206,54 @@ public class ListViewActivity extends AppCompatActivity {
         rightStr.add(food2);
         rightStr.add(food3);
         rightAdapter.notifyDataSetChanged();
+
+
     }
 
+    private void findFristItem(int firstVisibleItem) {
 
-    private void initView() {
-        lv_left = (ListView) findViewById(R.id.lv_left);
-        flagArray = new ArrayList<>();
-        rightStr = new ArrayList<List<MyTag>>();
-        leftStr = new ArrayList<>();
-        leftAdapter = new LeftAdapter(ListViewActivity.this, leftStr, flagArray);
-        lv_left.setAdapter(leftAdapter);
-        lv_right = (HaveHeaderListView) findViewById(R.id.lv_right);
-        rightAdapter = new RightAdapter(ListViewActivity.this, leftStr, rightStr);
-        lv_right.setAdapter(rightAdapter);
+        int count = 0;
+        for (int i = 0; i < rightStr.size(); i++) {
+            count += rightStr.get(i).size();
+            if (firstVisibleItem < count) {
+                if (i == currentType)
+                    return;
+                currentType = i;
+                tagTypeAdapter.changSelectState(i);
+                break;
+            }
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.tv_cancle:
+                finish();
+                break;
+            case R.id.bt_commit:
+                setCallBackData();
+                finish();
+                break;
+        }
+    }
+
+    /**
+     * 回调数据
+     */
+    private void setCallBackData() {
+        try {
+            Intent intent = new Intent();
+            intent.putExtra("selectTags", (Serializable) selectTags);
+            setResult(TagEditActivity.RESULT_ADDTAG_OK, intent);
+        } catch (Exception e) {
+            Log.e("", "fanhui " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.flipper_bottom_in, R.anim.flipper_bottom_out);
     }
 }

@@ -1,11 +1,22 @@
 package cn.zp.zpexoplayer.view;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+
 import com.google.android.exoplayer2.ui.PlaybackControlView;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import cn.zp.zpexoplayer.R;
+import cn.zp.zpexoplayer.SelectTagActivity;
+import cn.zp.zpexoplayer.TagEditActivity;
 import cn.zp.zpexoplayer.application.MyApplication;
 import cn.zp.zpexoplayer.exoplayer.IMediaPlayer;
 import cn.zp.zpexoplayer.exoplayer.KExoMediaPlayer;
 import cn.zp.zpexoplayer.model.MyPoint;
+import cn.zp.zpexoplayer.model.MyTag;
 
 /**
  * 标签编辑控制器
@@ -16,17 +27,23 @@ public class TagEditController implements TagEditBottomLinearLayout.ComponentLis
     private TagEditBottomLinearLayout tagEditBottomLinearLayout;
     private IMediaPlayer mediaPlayer;
     private TagEditDynamicTimeLine tagEditDynamicTimeLine;
+    private FlowRadioGroup tageRadioGroup;
     private MyPoint currentPoint;
+    private Context context;
     private int NEXT = 1;//下一个
     private int LAST = 2;//上一个
     private int NOW = 3;//当前
+    private ArrayList<TagTextView> tags = new ArrayList<>();
+    private List<List<MyTag>> selectTags;
 
 
-    public TagEditController(IMediaPlayer mediaPlayer, TagEditBottomLinearLayout mTagEditBottomLinearLayout, TagEditDynamicTimeLine tagEditDynamicTimeLine) {
+    public TagEditController(Context context, IMediaPlayer mediaPlayer, TagEditBottomLinearLayout mTagEditBottomLinearLayout, TagEditDynamicTimeLine tagEditDynamicTimeLine, FlowRadioGroup tageRadioGroup) {
+        this.context = context;
         this.mediaPlayer = mediaPlayer;
         this.tagEditDynamicTimeLine = tagEditDynamicTimeLine;
         this.tagEditBottomLinearLayout = mTagEditBottomLinearLayout;
         this.tagEditBottomLinearLayout.setComponentListener(this);
+        this.tageRadioGroup = tageRadioGroup;
         ((KExoMediaPlayer) this.mediaPlayer).setVideoControlLinstion(this);
         currentPoint = MyApplication.getTagProject().getMyPointByNumber(1);
         touchOperation(1, NOW);
@@ -42,6 +59,45 @@ public class TagEditController implements TagEditBottomLinearLayout.ComponentLis
     @Override
     public boolean onTouchNext(int currentTagNumber) {
         return touchOperation(currentTagNumber, NEXT);
+    }
+
+
+    @Override
+    public void onTouchAddLabel(int currentTagNumber) {
+        if (tageRadioGroup == null)
+            return;
+        addTags();
+
+        Intent intent = new Intent(context, SelectTagActivity.class);
+        ((Activity) context).startActivityForResult(intent, TagEditActivity.REQUEST_DATA);
+        ((Activity) context).overridePendingTransition(R.anim.flipper_bottom_in, 0);
+        //        ((Activity) context).finish();
+    }
+
+    // 添加标签
+    private void addTags() {
+        tageRadioGroup.removeAllViews();
+        for (int i = 0; i < tags.size(); i++) {
+            tageRadioGroup.addView(tags.get(i));
+            tageRadioGroup.invalidate();
+        }
+    }
+
+    public List<List<MyTag>> getSelectTags() {
+        return selectTags;
+    }
+
+    public void setSelectTags(List<List<MyTag>> selectTags) {
+        this.selectTags = selectTags;
+        tags.clear();
+        for (int i = 0; i < selectTags.size(); i++) {
+            for (int j = 0; j < selectTags.get(i).size(); j++) {
+                TagTextView tagTextView = new TagTextView(context);
+                tagTextView.setText(selectTags.get(i).get(j).getTagName());
+                tags.add(tagTextView);
+            }
+        }
+        addTags();
     }
 
     /**
@@ -84,11 +140,6 @@ public class TagEditController implements TagEditBottomLinearLayout.ComponentLis
             mediaPlayer.start();
     }
 
-
-    @Override
-    public void onTouchAddLabel(int currentTagNumber) {
-
-    }
 
     /**
      * 删除当前标签

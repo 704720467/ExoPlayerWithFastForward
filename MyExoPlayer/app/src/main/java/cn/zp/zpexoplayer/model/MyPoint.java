@@ -1,6 +1,7 @@
 package cn.zp.zpexoplayer.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  * Created by admin on 2017/6/22.
@@ -15,6 +16,7 @@ public class MyPoint implements Serializable {
     private float startX;//绘制的时候开始的位置
     private int number;//多少号tag
     private boolean isDelete = false;//false不删除可用，true删除不可用
+    private ArrayList<String> myTags;
 
 
     public MyPoint(long trealTime, long relativeTime, float startX, long playStartTime, long pleyEndTime) {
@@ -79,5 +81,15 @@ public class MyPoint implements Serializable {
 
     public void setDelete(boolean delete) {
         isDelete = delete;
+    }
+
+    public ArrayList<String> getMyTags() {
+        return myTags;
+    }
+
+    public void setMyTags(ArrayList<String> myTags) {
+        if (this.myTags == null)
+            this.myTags = new ArrayList<>();
+        this.myTags.addAll(myTags);
     }
 }

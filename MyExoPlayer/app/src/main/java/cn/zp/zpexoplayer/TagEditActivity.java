@@ -1,5 +1,6 @@
 package cn.zp.zpexoplayer;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -12,10 +13,13 @@ import com.google.android.exoplayer2.ui.PlaybackControlView;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import cn.zp.zpexoplayer.exoplayer.IMediaPlayer;
 import cn.zp.zpexoplayer.exoplayer.KExoMediaPlayer;
+import cn.zp.zpexoplayer.model.MyTag;
 import cn.zp.zpexoplayer.util.DeviceUtil;
+import cn.zp.zpexoplayer.view.FlowRadioGroup;
 import cn.zp.zpexoplayer.view.TagEditBottomLinearLayout;
 import cn.zp.zpexoplayer.view.TagEditController;
 import cn.zp.zpexoplayer.view.TagEditDynamicTimeLine;
@@ -24,7 +28,8 @@ import cn.zp.zpexoplayer.view.TopLinearLayout;
 public class TagEditActivity extends AppCompatActivity implements TopLinearLayout.TopLinearLayListener, IMediaPlayer.OnPreparedListener, View.OnClickListener, IMediaPlayer.OnErrorListener, IMediaPlayer.OnCompletionListener {
     private int seekPoint = 0;
     private Settings mSettings;
-
+    public static final int RESULT_ADDTAG_OK = 30;
+    public static final int REQUEST_DATA = 31;
     private IMediaPlayer mediaPlayer;
     private SimpleExoPlayerView simpleExoPlayerView;
     private ArrayList<Integer> myRandom = new ArrayList<>();
@@ -35,6 +40,7 @@ public class TagEditActivity extends AppCompatActivity implements TopLinearLayou
     private TagEditDynamicTimeLine tagEditDynamicTimeLine;
     private LinearLayout deleltTagLay;//删除Tag
     private LinearLayout adjustmentTagLay;//调整时间
+    private FlowRadioGroup tageRadioGroup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +50,7 @@ public class TagEditActivity extends AppCompatActivity implements TopLinearLayou
         initView();
         switchMediaEngine(null);
         goPlay(null);
-        mTagEditController = new TagEditController(mediaPlayer, mTagEditBottomLinearLayout, tagEditDynamicTimeLine);
+        mTagEditController = new TagEditController(this, mediaPlayer, mTagEditBottomLinearLayout, tagEditDynamicTimeLine, tageRadioGroup);
     }
 
     private void initData() {
@@ -53,6 +59,7 @@ public class TagEditActivity extends AppCompatActivity implements TopLinearLayou
     }
 
     private void initView() {
+        tageRadioGroup = (FlowRadioGroup) findViewById(R.id.tage_radiogroup);
         topLinearLayout = (TopLinearLayout) findViewById(R.id.my_top_lay);
         topLinearLayout.setTopLinearLayListener(this);
         topLinearLayout.setmTitleText("标签标记");
@@ -191,6 +198,17 @@ public class TagEditActivity extends AppCompatActivity implements TopLinearLayou
         if (mediaPlayer != null) {
             mediaPlayer.release();
             mediaPlayer.stop();
+        }
+    }
+
+    private List<List<MyTag>> selectTags;
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_DATA && null != data) {
+            selectTags = (List<List<MyTag>>) data.getSerializableExtra("selectTags");
+            mTagEditController.setSelectTags(selectTags);
         }
     }
 }
