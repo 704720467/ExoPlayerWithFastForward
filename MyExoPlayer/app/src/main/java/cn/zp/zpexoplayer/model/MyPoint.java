@@ -12,7 +12,7 @@ public class MyPoint implements Serializable {
     private long trealTime;//实际时间，在整个视频中的时间（单位毫秒）
     private long relativeTime;//在一秒内的时间(单位毫秒)
     private long playStartTime;//播放开始时间，前七妙
-    private long pleyEndTime;//播放结束时间，后三秒
+    private long playEndTime;//播放结束时间，后三秒
     private float startX;//绘制的时候开始的位置
     private int number;//多少号tag
     private boolean isDelete = false;//false不删除可用，true删除不可用
@@ -24,7 +24,7 @@ public class MyPoint implements Serializable {
         this.relativeTime = relativeTime;
         this.startX = startX;
         this.playStartTime = playStartTime;
-        this.pleyEndTime = pleyEndTime;
+        this.playEndTime = pleyEndTime;
     }
 
     public long getRelativeTime() {
@@ -43,12 +43,12 @@ public class MyPoint implements Serializable {
         this.playStartTime = playStartTime;
     }
 
-    public long getPleyEndTime() {
-        return pleyEndTime;
+    public long getPlayEndTime() {
+        return playEndTime;
     }
 
-    public void setPleyEndTime(long pleyEndTime) {
-        this.pleyEndTime = pleyEndTime;
+    public void setPlayEndTime(long playEndTime) {
+        this.playEndTime = playEndTime;
     }
 
     public long getTrealTime() {

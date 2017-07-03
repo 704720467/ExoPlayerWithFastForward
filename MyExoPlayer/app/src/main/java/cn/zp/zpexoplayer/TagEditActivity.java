@@ -16,6 +16,7 @@ import java.util.List;
 
 import cn.zp.zpexoplayer.exoplayer.IMediaPlayer;
 import cn.zp.zpexoplayer.exoplayer.KExoMediaPlayer;
+import cn.zp.zpexoplayer.model.MyPoint;
 import cn.zp.zpexoplayer.model.MyTag;
 import cn.zp.zpexoplayer.util.DeviceUtil;
 import cn.zp.zpexoplayer.view.FlowRadioGroup;
@@ -29,6 +30,7 @@ public class TagEditActivity extends FillScreenBaseActivity implements TopLinear
     private Settings mSettings;
     public static final int RESULT_ADDTAG_OK = 30;
     public static final int REQUEST_DATA = 31;
+    public static final int REQUEST_ADJUST_TIME_OK = 32;
     private IMediaPlayer mediaPlayer;
     private SimpleExoPlayerView simpleExoPlayerView;
     private ArrayList<Integer> myRandom = new ArrayList<>();
@@ -102,6 +104,14 @@ public class TagEditActivity extends FillScreenBaseActivity implements TopLinear
                 mTagEditController.deleteTag();
                 break;
             case R.id.adjustment_tag_lay:
+
+                MyPoint myPoint = mTagEditController.getCurrentPoint();
+                if (myPoint == null)
+                    return;
+                Intent intent = new Intent(this, AdjustmentTimeActivity.class);
+                intent.putExtra("startTime", myPoint.getPlayStartTime());
+                intent.putExtra("endTime", myPoint.getPlayEndTime());
+                startActivityForResult(intent, TagEditActivity.REQUEST_DATA);
                 break;
         }
     }
@@ -193,10 +203,26 @@ public class TagEditActivity extends FillScreenBaseActivity implements TopLinear
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_DATA && null != data) {
-            selectTags = (List<List<MyTag>>) data.getSerializableExtra("selectTags");
-            selectTagsNmuber = (List<String>) data.getSerializableExtra("selectTagsNmuber");
-            mTagEditController.setSelectTags(selectTags);
+        if (null == data)
+            return;
+        if (requestCode == REQUEST_DATA) {
+
+            switch (resultCode) {
+                case RESULT_ADDTAG_OK:
+                    selectTags = (List<List<MyTag>>) data.getSerializableExtra("selectTags");
+                    selectTagsNmuber = (List<String>) data.getSerializableExtra("selectTagsNmuber");
+                    mTagEditController.setSelectTags(selectTags);
+                    break;
+                case REQUEST_ADJUST_TIME_OK:
+                    MyPoint myPoint = mTagEditController.getCurrentPoint();
+                    if (myPoint == null)
+                        return;
+                    long startTime = data.getLongExtra("startTime", myPoint.getPlayStartTime());
+                    long endTime = data.getLongExtra("endTime", myPoint.getPlayEndTime());
+                    myPoint.setPlayStartTime(startTime);
+                    myPoint.setPlayEndTime(endTime);
+                    break;
+            }
         }
     }
 }

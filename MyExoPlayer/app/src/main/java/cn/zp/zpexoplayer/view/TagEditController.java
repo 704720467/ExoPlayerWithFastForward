@@ -90,6 +90,7 @@ public class TagEditController implements TagEditBottomLinearLayout.ComponentLis
 
     public void setSelectTags(List<List<MyTag>> selectTags) {
         this.selectTags = selectTags;
+        currentPoint.setMyTags(selectTags);
         tags.clear();
         for (int i = 0; i < selectTags.size(); i++) {
             for (int j = 0; j < selectTags.get(i).size(); j++) {
@@ -184,7 +185,7 @@ public class TagEditController implements TagEditBottomLinearLayout.ComponentLis
 
     @Override
     public boolean updateProgressBack(long duration, long currentPosition) {
-        if (currentPoint != null && currentPosition >= currentPoint.getPleyEndTime())
+        if (currentPoint != null && currentPosition >= currentPoint.getPlayEndTime())
             seekAndPlay();
         return false;
     }

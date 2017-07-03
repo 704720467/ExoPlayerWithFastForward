@@ -13,6 +13,7 @@
             android:id="@+id/tv_cancle"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:background="@drawable/lay_press_selector"
             android:gravity="center"
             android:paddingLeft="15dp"
             android:paddingRight="15dp"
@@ -32,8 +33,10 @@
             android:textSize="15dp"/>
 
         <TextView
+            android:id="@+id/tv_save"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:background="@drawable/lay_press_selector"
             android:gravity="center"
             android:paddingLeft="15dp"
             android:paddingRight="15dp"
@@ -65,7 +68,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="15dp"
             android:gravity="center"
-            android:text="小提示："
+            android:text="小提示:"
             android:textColor="@color/black"
             android:textSize="13sp"/>
 

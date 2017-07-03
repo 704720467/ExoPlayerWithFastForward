@@ -1,5 +1,6 @@
 package cn.zp.zpexoplayer;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -26,7 +27,7 @@ import cn.zp.zpexoplayer.util.videoUitl.ExtractVideoInfoUtil;
 import cn.zp.zpexoplayer.util.videoUitl.PictureUtils;
 import cn.zp.zpexoplayer.util.videoUitl.VideoEditInfo;
 
-public class AdjustmentTimeActivity extends FillScreenBaseActivity {
+public class AdjustmentTimeActivity extends FillScreenBaseActivity implements View.OnClickListener {
     private String TAG = "AdjustmentTimeActivity";
     private final String path = Environment.getExternalStorageDirectory() + "/reee/6.mp4";
     private final String OutPutFileDirPath = Environment.getExternalStorageDirectory() + "/reee/ExtractPic";
@@ -46,11 +47,15 @@ public class AdjustmentTimeActivity extends FillScreenBaseActivity {
     private int currentLength = 0;// 遮挡的中宽度（包含了两个移动的bar）
     private float startTime;// 左边遮挡层的宽度
     private float endTime;// 右边遮挡层的宽度
-    private float videoDuration = 0;// 视频的总时长
+    private float tagVideoDuration = 0;// 视频的总时长
     private int currentLayoutWidth = 0;// 所有图片的宽度，也就是内容布局的宽度
     private int imageWidth = 0;//图片的宽度
     private int imageCount = 10;
     private ImageView imgCover;
+    private long mixTime;//拖动时间轴，最小时间
+    private long maxTime;//拖动时间轴，最大时间。
+    private long nowStartTime;//最新的开始时间。
+    private long nowEndTime;//最新的结束时间。
 
     private List<VideoEditInfo> lists = new ArrayList<>();
     private ExtractVideoInfoUtil mExtractVideoInfoUtil;
@@ -82,32 +87,47 @@ public class AdjustmentTimeActivity extends FillScreenBaseActivity {
         imageHend.setOnTouchListener(onTouchListenerForChildWidthChange);
         imageLast = (ImageView) findViewById(R.id.image_last);
         imageLast.setOnTouchListener(onTouchListenerForChildWidthChange);
+        findViewById(R.id.tv_cancle).setOnClickListener(this);
+        findViewById(R.id.tv_save).setOnClickListener(this);
 
     }
 
 
     private void initData() {
+
         if (!new File(path).exists()) {
             Toast.makeText(this, "视频文件不存在", Toast.LENGTH_SHORT).show();
             finish();
         }
         mExtractVideoInfoUtil = new ExtractVideoInfoUtil(path);
         currentLayoutWidth = DeviceUtil.getScreenWidthSize(this) - DeviceUtil.dp2px(this, 20);
+
         imageWidth = currentLayoutWidth / imageCount;
-        videoDuration = Long.valueOf(mExtractVideoInfoUtil.getVideoLength());
-        startTime = 0;
-        endTime = Long.valueOf(mExtractVideoInfoUtil.getVideoLength());
+        startTime = getIntent().getLongExtra("startTime", 0);
+        endTime = getIntent().getLongExtra("endTime", 0);
+        nowStartTime = (long) startTime;
+        nowEndTime = (long) endTime;
+        mixTime = (long) startTime - 30 * 1000;
+        maxTime = (long) endTime + 30 * 1000;
+
+        if (mixTime < 0)
+            mixTime = 0;
+        if (maxTime == 0 || maxTime > Long.valueOf(mExtractVideoInfoUtil.getVideoLength()))
+            maxTime = Long.valueOf(mExtractVideoInfoUtil.getVideoLength());
+        startTime = startTime - mixTime;
+        endTime = endTime - mixTime;
+        tagVideoDuration = maxTime - mixTime;
     }
 
     public void onClickExtractOne() {
-        String path = mExtractVideoInfoUtil.extractFrames(OutPutFileDirPath, (long) startTime);
+        String path = mExtractVideoInfoUtil.extractFrames(OutPutFileDirPath, (long) startTime + mixTime);
         Glide.with(this).load("file://" + path).into(imgCover);
     }
 
     public void onClickExtractMul() {
         int extractW = DeviceUtil.dp2px(this, 300);
         int extractH = DeviceUtil.dp2px(this, 300);
-        mExtractFrameWorkThread = new ExtractFrameWorkThread(extractW, extractH, mUIHandler, path, OutPutFileDirPath, (long) startTime, (long) endTime, imageCount);
+        mExtractFrameWorkThread = new ExtractFrameWorkThread(extractW, extractH, mUIHandler, path, OutPutFileDirPath, (long) startTime + mixTime, (long) endTime + mixTime, imageCount);
         mExtractFrameWorkThread.start();
     }
 
@@ -126,11 +146,11 @@ public class AdjustmentTimeActivity extends FillScreenBaseActivity {
             contentLayour.addView(image);
         }
 
-        int leftWidth = (int) (((float) currentLayoutWidth * startTime) / videoDuration);
+        int leftWidth = (int) (((float) currentLayoutWidth * startTime) / tagVideoDuration);
         leftWidth = leftWidth == 0 ? 1 : leftWidth;
         Log.w(TAG, "leftWidth=" + leftWidth);
-        int rightWidth = (int) (((videoDuration - endTime) / videoDuration) * currentLayoutWidth);
-        if (endTime > videoDuration) {
+        int rightWidth = (int) (((tagVideoDuration - endTime) / tagVideoDuration) * currentLayoutWidth);
+        if (endTime > tagVideoDuration) {
             rightWidth = 0;
         }
         rightWidth = rightWidth == 0 ? 1 : rightWidth;
@@ -274,7 +294,7 @@ public class AdjustmentTimeActivity extends FillScreenBaseActivity {
         }
         // 获取当前遮挡板的总宽度
         currentLength = contentLeftLayour.getWidth() + contentRightLayour.getWidth();
-        int minWidth = (int) (((float) currentLayoutWidth / videoDuration) * 2);// 最小宽度不能小于两秒的宽度
+        int minWidth = (int) (((float) currentLayoutWidth / tagVideoDuration) * 2);// 最小宽度不能小于两秒的宽度
         // 变化后最小宽度不能小于bar的宽度，最大宽度不能超过所有视频图片布局的总宽度
         if ((v.getWidth() + addWidht > 0) && (minWidth <= (currentLayoutWidth - (currentLength + addWidht))) && ((currentLength + addWidht) <= currentLayoutWidth)) {
             // v.getLayoutParams().width = v.getWidth() + addWidht;
@@ -305,25 +325,29 @@ public class AdjustmentTimeActivity extends FillScreenBaseActivity {
         switch (currentSeekBar) {
             case 0:
                 // 根据时间与宽度计算出开始时间
-                startTime = (videoDuration / (float) currentLayoutWidth) * ((float) contentLeftLayour.getWidth());
+                startTime = (tagVideoDuration / (float) currentLayoutWidth) * ((float) contentLeftLayour.getWidth());
                 seekPostion = startTime;
                 //                tvStartTime.setText(TimeUtil.millisToString(startTime * 1000));
                 break;
             case 1:
                 // 根据时间与宽度计算出开始和结束时间
-                endTime = (videoDuration / (float) currentLayoutWidth) * ((float) currentLayoutWidth - (float) contentRightLayour.getWidth());
+                endTime = (tagVideoDuration / (float) currentLayoutWidth) * ((float) currentLayoutWidth - (float) contentRightLayour.getWidth());
                 seekPostion = endTime;
                 //                tvEndTime.setText(TimeUtil.millisToString(endTime * 1000));
                 break;
             case 2:
                 // 根据时间与宽度计算出结束时间
-                startTime = (videoDuration / (float) currentLayoutWidth) * ((float) contentLeftLayour.getWidth());
-                endTime = (videoDuration / (float) currentLayoutWidth) * ((float) currentLayoutWidth - (float) contentRightLayour.getWidth());
+                startTime = (tagVideoDuration / (float) currentLayoutWidth) * ((float) contentLeftLayour.getWidth());
+                endTime = (tagVideoDuration / (float) currentLayoutWidth) * ((float) currentLayoutWidth - (float) contentRightLayour.getWidth());
                 seekPostion = startTime;
                 //                tvStartTime.setText(TimeUtil.millisToString(startTime * 1000));
                 //                tvEndTime.setText(TimeUtil.millisToString(endTime * 1000));
                 break;
         }
+
+
+        nowStartTime = (long) startTime + mixTime;
+        nowEndTime = (long) endTime + mixTime;
         for (VideoEditInfo list : lists) {
             if (list.time >= seekPostion) {
                 Glide.with(this).load("file://" + list.path).into(imgCover);
@@ -333,6 +357,22 @@ public class AdjustmentTimeActivity extends FillScreenBaseActivity {
     }
 
     private final MainHandler mUIHandler = new MainHandler(this);
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.tv_save:
+                Intent intent = new Intent();
+                intent.putExtra("startTime", nowStartTime);
+                intent.putExtra("endTime", nowEndTime);
+                setResult(TagEditActivity.REQUEST_ADJUST_TIME_OK, intent);
+                finish();
+                break;
+            case R.id.tv_cancle:
+                finish();
+                break;
+        }
+    }
 
     private static class MainHandler extends Handler {
         private final WeakReference<AdjustmentTimeActivity> mActivity;
