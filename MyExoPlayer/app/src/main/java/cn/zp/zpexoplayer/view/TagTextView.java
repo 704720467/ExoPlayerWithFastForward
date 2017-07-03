@@ -43,13 +43,7 @@ public class TagTextView extends TextView {
 
     private void initView() {
         int resourceId;
-        if (type == 1)
-            resourceId = R.drawable.bg_tag_orange;
-        else if (type == 2)
-            resourceId = R.drawable.bg_tag_yellow;
-        else
-            resourceId = R.drawable.bg_tag_blue;
-        setBackgroundResource(resourceId);
+        setBgColor();
 
         setTextSize(DeviceUtil.dp2px(getContext(), 4));
         setTextColor(Color.parseColor("#333333"));
@@ -57,5 +51,21 @@ public class TagTextView extends TextView {
         layoutParams.gravity = Gravity.CENTER;
         setPaddingRelative(paddingLeftAndroidRight, paddingTopAndroidBottom, paddingLeftAndroidRight, paddingTopAndroidBottom);
         setLayoutParams(layoutParams);
+    }
+
+    private void setBgColor() {
+        int resourceId;
+        if (type == 1)
+            resourceId = R.drawable.bg_tag_orange;
+        else if (type == 2)
+            resourceId = R.drawable.bg_tag_yellow;
+        else
+            resourceId = R.drawable.bg_tag_blue;
+        setBackgroundResource(resourceId);
+    }
+
+    public void setType(int type) {
+        this.type = type;
+        setBgColor();
     }
 }

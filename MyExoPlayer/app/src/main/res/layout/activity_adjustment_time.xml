@@ -1,0 +1,152 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/white">
+
+    <LinearLayout
+        android:id="@+id/top_lay"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tv_cancle"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:text="取消"
+            android:textColor="@color/black"
+            android:textSize="15dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:text="调整时间"
+            android:textColor="@color/black"
+            android:textSize="15dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:text="保存"
+            android:textColor="@color/black"
+            android:textSize="15dp"/>
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/img_cover"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_below="@+id/top_lay"
+        android:scaleType="fitXY"/>
+
+    <LinearLayout
+        android:id="@+id/tv_tip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="40dp"
+        android:orientation="vertical"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"
+            android:gravity="center"
+            android:text="小提示："
+            android:textColor="@color/black"
+            android:textSize="13sp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center|left"
+            android:text="我们已经为您保留标记点的前30秒与后30秒的视频，以便您进行时间调整，调整最小间隔需大于1秒。"
+            android:textColor="@color/black"
+            android:textSize="13sp"/>
+    </LinearLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/horizontal_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/tv_tip"
+        android:layout_below="@+id/img_cover"
+        android:layout_gravity="center_vertical"
+        android:gravity="center">
+
+        <LinearLayout
+            android:id="@+id/content_tailor"
+            android:layout_width="wrap_content"
+            android:layout_height="59dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:orientation="horizontal">
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@+id/content_available_tailor"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp">
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/content_left_tailor"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:background="#BB171F21">
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/content_right_tailor"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:background="#BB171F21">
+        </RelativeLayout>
+
+        <ImageView
+            android:id="@+id/image_hend"
+            android:layout_width="15dp"
+            android:layout_height="78dp"
+            android:layout_alignLeft="@+id/content_left_tailor"
+            android:layout_alignTop="@+id/content_left_tailor"
+            android:layout_marginLeft="-8dp"
+            android:scaleType="fitXY"
+            android:src="@mipmap/ic_move_bar_head"/>
+
+        <ImageView
+            android:id="@+id/image_last"
+            android:layout_width="15dp"
+            android:layout_height="78dp"
+            android:layout_alignBottom="@+id/content_right_tailor"
+            android:layout_alignRight="@+id/content_right_tailor"
+            android:layout_marginRight="-8dp"
+            android:scaleType="fitXY"
+            android:src="@mipmap/ic_move_bar_last"/>
+    </RelativeLayout>
+
+
+</RelativeLayout>

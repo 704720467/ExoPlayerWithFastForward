@@ -1,11 +1,11 @@
 package cn.zp.zpexoplayer.view;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 
 import com.google.android.exoplayer2.ui.PlaybackControlView;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +35,7 @@ public class TagEditController implements TagEditBottomLinearLayout.ComponentLis
     private int NOW = 3;//当前
     private ArrayList<TagTextView> tags = new ArrayList<>();
     private List<List<MyTag>> selectTags;
+    private List<String> selectTagsNmuber;//被选中的位置例如0-1：第一类位置是1的标签
 
 
     public TagEditController(Context context, IMediaPlayer mediaPlayer, TagEditBottomLinearLayout mTagEditBottomLinearLayout, TagEditDynamicTimeLine tagEditDynamicTimeLine, FlowRadioGroup tageRadioGroup) {
@@ -68,10 +69,10 @@ public class TagEditController implements TagEditBottomLinearLayout.ComponentLis
             return;
         addTags();
 
-        Intent intent = new Intent(context, SelectTagActivity.class);
-        ((Activity) context).startActivityForResult(intent, TagEditActivity.REQUEST_DATA);
-        ((Activity) context).overridePendingTransition(R.anim.flipper_bottom_in, 0);
-        //        ((Activity) context).finish();
+        Intent intent = new Intent(((TagEditActivity) context), SelectTagActivity.class);
+        intent.putExtra("selectTagsNmuber", (Serializable) TagEditActivity.selectTagsNmuber);
+        ((TagEditActivity) context).startActivityForResult(intent, TagEditActivity.REQUEST_DATA);
+        ((TagEditActivity) context).overridePendingTransition(R.anim.flipper_bottom_in, 0);
     }
 
     // 添加标签
@@ -93,6 +94,7 @@ public class TagEditController implements TagEditBottomLinearLayout.ComponentLis
         for (int i = 0; i < selectTags.size(); i++) {
             for (int j = 0; j < selectTags.get(i).size(); j++) {
                 TagTextView tagTextView = new TagTextView(context);
+                tagTextView.setType(selectTags.get(i).get(j).getTypeNumber());
                 tagTextView.setText(selectTags.get(i).get(j).getTagName());
                 tags.add(tagTextView);
             }

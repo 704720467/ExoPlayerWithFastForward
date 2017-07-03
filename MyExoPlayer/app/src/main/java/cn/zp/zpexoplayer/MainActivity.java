@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -29,7 +28,7 @@ import cn.zp.zpexoplayer.view.SeekBarLinearLayout;
 import cn.zp.zpexoplayer.view.SpeedLinearLayout;
 import cn.zp.zpexoplayer.view.TopLinearLayout;
 
-public class MainActivity extends AppCompatActivity implements SeekBarLinearLayout.MySeekBarListener, TopLinearLayout.TopLinearLayListener, SpeedLinearLayout.MyCircleLinearLayListener, PlaybackControlView.VideoControlLinstion, IMediaPlayer.OnPreparedListener, View.OnClickListener, IMediaPlayer.OnErrorListener, IMediaPlayer.OnCompletionListener {
+public class MainActivity extends FillScreenBaseActivity implements SeekBarLinearLayout.MySeekBarListener, TopLinearLayout.TopLinearLayListener, SpeedLinearLayout.MyCircleLinearLayListener, PlaybackControlView.VideoControlLinstion, IMediaPlayer.OnPreparedListener, View.OnClickListener, IMediaPlayer.OnErrorListener, IMediaPlayer.OnCompletionListener {
     private int seekPoint = 0;
     private Settings mSettings;
     private int tagCount = 0;
@@ -302,19 +301,6 @@ public class MainActivity extends AppCompatActivity implements SeekBarLinearLayo
         if (mediaPlayer != null && seekPoint < myRandom.size()) {
             controller.seekTo(controller.positionValue(myRandom.get(seekPoint)));
             seekPoint++;
-        }
-    }
-
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        super.onWindowFocusChanged(hasFocus);
-        if (hasFocus) {
-            getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE //
-                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION //
-                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN //
-                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION //
-                    | View.SYSTEM_UI_FLAG_FULLSCREEN //
-                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
         }
     }
 

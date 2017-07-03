@@ -16,11 +16,7 @@
             android:name=".MainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
         </activity>
         <activity
             android:name=".exoplayer.FileExplorerActivity"
@@ -31,7 +27,6 @@
         <activity android:name=".TrainGradeActivity">
         </activity>
         <activity android:name=".ListViewActivity">
-
         </activity>
         <activity
             android:name=".TagEditActivity"
@@ -39,9 +34,20 @@
         </activity>
         <activity
             android:name=".SelectTagActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppCompatBottomDialog">
+        </activity>
+        <activity
+            android:name=".AdjustmentTimeActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
 
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
         </activity>
     </application>
 

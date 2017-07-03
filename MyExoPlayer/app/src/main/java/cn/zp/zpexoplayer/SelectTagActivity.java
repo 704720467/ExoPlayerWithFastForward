@@ -2,7 +2,6 @@ package cn.zp.zpexoplayer;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -28,7 +27,7 @@ import static cn.zp.zpexoplayer.model.TagType.EnumTagType.PLAYER;
 import static cn.zp.zpexoplayer.model.TagType.EnumTagType.TACTICS;
 import static cn.zp.zpexoplayer.model.TagType.EnumTagType.TECHNOLOGY;
 
-public class SelectTagActivity extends AppCompatActivity implements View.OnClickListener {
+public class SelectTagActivity extends FillScreenBaseActivity implements View.OnClickListener {
     private String TAG = "SelectTagActivity";
     private RecyclerView tagTypeRv;
     private TagTypeAdapter tagTypeAdapter;
@@ -40,6 +39,7 @@ public class SelectTagActivity extends AppCompatActivity implements View.OnClick
     //右边的数据存储
     private List<List<MyTag>> rightStr;
     private List<List<MyTag>> selectTags;
+    private List<String> selectTagsNmuber;//被选中的位置例如0-1：第一类位置是1的标签
     private int currentType = 0;
     //是否滑动标志位
     private Boolean isScroll = false;
@@ -49,6 +49,7 @@ public class SelectTagActivity extends AppCompatActivity implements View.OnClick
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_tag);
 
@@ -83,7 +84,6 @@ public class SelectTagActivity extends AppCompatActivity implements View.OnClick
             public void onTransitionItemClick(View view, int section, int postion, boolean isPlus) {
                 leftStr.get(section).setSelectCount(leftStr.get(section).getSelectCount() + (isPlus ? (1) : (-1)));
                 tagTypeAdapter.changSelectState(section);
-                selectTags.get(section).add(rightStr.get(section).get(postion));
                 selectTagCountNumber += (isPlus ? (1) : (-1));
                 selectTagCount.setText(selectTagCountNumber + "");
             }
@@ -143,6 +143,9 @@ public class SelectTagActivity extends AppCompatActivity implements View.OnClick
     }
 
     private void initData() {
+        //获取被选中的标签集合
+        selectTagsNmuber = (List<String>) getIntent().getSerializableExtra("selectTagsNmuber");
+
         leftStr.add(new TagType(PLAYER, "球员类"));
         leftStr.add(new TagType(TECHNOLOGY, "技术类"));
         leftStr.add(new TagType(TACTICS, "战术类"));
@@ -205,9 +208,31 @@ public class SelectTagActivity extends AppCompatActivity implements View.OnClick
         rightStr.add(food1);
         rightStr.add(food2);
         rightStr.add(food3);
+
+        collateDate();
+
         rightAdapter.notifyDataSetChanged();
+    }
 
+    /**
+     * 整理数据
+     */
+    private void collateDate() {
+        if (selectTagsNmuber == null)
+            return;
 
+        //        for (int i = 0; i < selectTagsNmuber.size(); i++) {
+        //        String s = selectTagsNmuber.get(i);
+        for (String s : selectTagsNmuber) {
+            int typeNumber = Integer.parseInt(s.substring(0, s.indexOf("-")));
+            int tagNumber = Integer.parseInt(s.substring(s.indexOf("-") + 1, s.length()));
+            rightStr.get(typeNumber).get(tagNumber).setSelected(true);
+            leftStr.get(typeNumber).setSelectCount(leftStr.get(typeNumber).getSelectCount() + 1);
+            tagTypeAdapter.changSelectState(typeNumber);
+            selectTags.get(typeNumber).add(rightStr.get(typeNumber).get(tagNumber));
+            selectTagCountNumber += 1;
+            selectTagCount.setText(selectTagCountNumber + "");
+        }
     }
 
     private void findFristItem(int firstVisibleItem) {
@@ -243,8 +268,25 @@ public class SelectTagActivity extends AppCompatActivity implements View.OnClick
      */
     private void setCallBackData() {
         try {
+            if (selectTagsNmuber == null)
+                selectTagsNmuber = new ArrayList<>();
+            selectTagsNmuber.clear();
+            selectTags.get(0).clear();
+            selectTags.get(1).clear();
+            selectTags.get(2).clear();
+            for (int i = 0; i < rightStr.size(); i++) {
+                List<MyTag> myTags = rightStr.get(i);
+                for (int j = 0; j < myTags.size(); j++) {
+                    if (myTags.get(j).isSelected()) {
+                        selectTags.get(i).add(myTags.get(j));
+                        selectTagsNmuber.add(i + "-" + j);
+                    }
+                }
+            }
+
             Intent intent = new Intent();
             intent.putExtra("selectTags", (Serializable) selectTags);
+            intent.putExtra("selectTagsNmuber", (Serializable) selectTagsNmuber);
             setResult(TagEditActivity.RESULT_ADDTAG_OK, intent);
         } catch (Exception e) {
             Log.e("", "fanhui " + e.getMessage());
@@ -254,6 +296,6 @@ public class SelectTagActivity extends AppCompatActivity implements View.OnClick
     @Override
     public void finish() {
         super.finish();
-        overridePendingTransition(R.anim.flipper_bottom_in, R.anim.flipper_bottom_out);
+        overridePendingTransition(0, R.anim.flipper_bottom_out);
     }
 }
